@@ -1,0 +1,273 @@
+:root {
+    --black: #333;
+    --primary-green: #4b6561;
+    --secondary-green: #508b82;
+    --light-green: #91b1b3;
+    --background: #ecfeff;
+    --mango: #fccb88;
+    --alert: #fc5c81;
+    --alert-dark: #f23a65;
+    --function: #4fbfc0;
+    --function-dark: #2a5f79;
+    --gray: #dfe9e9;
+    --dark-gray: #c4c4c4;
+    --gray-lighter: #eff4f4;
+    --light-gray: #f5f8f8;
+}
+
+body {
+    background-color: white;
+    color: var(--black);
+}
+
+body.fixed {
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1.5;
+    color: var(--black);
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.5;
+    color: var(--black);
+}
+
+h2.mission_time.start {
+    color: var(--secondary-green);
+}
+
+h2.mission_time.end {
+    color: var(--alert);
+}
+
+h2.mission_time.not-start {
+    color: var(--dark-gray);
+}
+
+.button-hollow {
+    width: 80px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--function);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--function);
+    cursor: pointer;
+}
+
+.button-hollow:hover {
+    border: 1px solid var(--secondary-green);
+    color: var(--secondary-green);
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.button-fill {
+    width: 100%;
+    height: 40px;
+    border-radius: 8px;
+    background-color: var(--function) !important;
+    border: 1px solid var(--function);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: #fff;
+    cursor: pointer;
+    padding: 0 8px;
+}
+
+.button-fill:hover {
+    background-color: var(--secondary-green) !important;
+    border: 1px solid var(--secondary-green);
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.button-pink {
+    width: 80px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid var(--alert);
+    font-size: 12px;
+    font-weight: 500;
+    text-align: center;
+    color: var(--alert);
+    cursor: pointer;
+}
+
+.button-pink:hover {
+    color: var(--alert-dark) !important;
+    border: 1px solid var(--alert-dark);
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+#content {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
+    margin: auto;
+    height: -webkit-fill-available;
+}
+
+/* 右側內容 */
+.tab {
+    width: calc(100vw - 230px);
+    height: calc(100vh - 20px);
+    border-radius: 8px;
+}
+
+.tab .tab-content {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+}
+
+.tab .tab-content .tab-content-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.tab .tab-content .tab-content-top .page-title {
+    display: flex;
+    align-items: center;
+}
+
+.tab .tab-content .tab-content-top .page-title::before {
+    content: "";
+    width: 8px;
+    height: 24px;
+    border-radius: 8px;
+    background-color: var(--primary-green);
+    margin-right: 8px;
+}
+
+.tab .tab-content .mission-session {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    margin-bottom: 20px;
+}
+
+.tab .tab-content .mission-session .mission-card-score {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.tab .tab-content .mission-session .mission-card-score .star {
+    width: 25px;
+}
+
+.tab .tab-content .mission-session .mission-card-score .not-submit {
+    color: var(--alert);
+}
+
+.tab .tab-content .mission-session .mission-card-score .no-score {
+    color: var(--function);
+}
+
+.tab .tab-content .mission-submit-area {
+    display: flex;
+    flex-direction: column;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.tab .tab-content .mission-submit-area .functions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.tab .tab-content .mission-submit-area .submit-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 12px 0;
+}
+
+.tab .tab-content .mission-submit-area .submit-link a {
+    font-size: 1rem;
+    color: var(--function);
+}
+
+.tab .tab-content .mission-submit-area .submit-link a::before,
+.tab .tab-content .mission-submit-area .submit-link a::after {
+    display: inline-block;
+    content: "";
+    border-top: 0.15rem solid var(--secondary-green);
+    width: 2rem;
+    margin: 0 0.5rem;
+    transform: translateY(-0.25rem);
+}
+
+.tab .tab-content .mission-submit-area .submit-time {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--secondary-green);
+}
+
+.tab .tab-content .mission-submit-area .submit-time .overtime{
+    color: var(--alert);
+}
+
+.tab .tab-content .mission-submit-area .functions .button-fill {
+    width: fit-content;
+}
+
+.tab .tab-content .mission-submit-area .mission-infomation {
+    display: flex;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--gray);
+}
+
+.tab .tab-content .mission-submit-area .img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.tab .tab-content .mission-submit-area .img.default {
+    border-radius: 8px;
+    background-color: #d4e2e2;
+}
+
+.tab .tab-content .mission-submit-area .img.default img {
+    height: 30px;
+    width: 30px;
+}
+
+.tab .tab-content .mission-submit-area .submit-link .form__input {
+    display: flex;
+    align-items: center;
+}
+
+.tab .tab-content .mission-submit-area .submit-link .form__input .icon {
+    height: 30px;
+    margin-right: 12px;
+}
+
+.tab .tab-content .messege-board {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}

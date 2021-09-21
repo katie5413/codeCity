@@ -1,0 +1,111 @@
+.mission-board-card-area{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.mission-card {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--gray);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.mission-card:hover {
+    box-shadow: 0 2px 7px 0 rgba(0, 0, 0, 0.2);
+}
+
+.mission-card-img {
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.mission-card-img img {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+}
+
+.mission-card-content {
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    width: 100%;
+    white-space: normal;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+.mission-card-content .top {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+}
+
+.mission-card-content .top .mission-card-title {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.mission-card-content .top .mission-card-score {
+    width: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+}
+
+.mission-card-content .top .mission-card-score .star{
+    width: 25px;
+}
+
+.mission-card-content .top .mission-card-score .not-submit {
+    color: var(--alert);
+}
+
+.mission-card-content .top .mission-card-score .no-score{
+    color: var(--function);
+}
+
+.mission-card-content .mission-card-title{
+    color: var(--black);
+}
+
+.mission-card-content .mission-card-title::before {
+    content: "";
+    width: 5px;
+    height: 20px;
+    border-radius: 10px;
+    background-color: var(--secondary-green);
+    margin-right: 8px;
+}
+
+.mission-card-content .mission-card-time {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.mission-card.start .mission-card-content .mission-card-time {
+    color: var(--secondary-green);
+}
+
+.mission-card.not-start .mission-card-content .mission-card-time {
+    color: var(--dark-gray);
+}
+
+.mission-card.end .mission-card-content .mission-card-time {
+    color: var(--alert);
+}
+
+.mission-card .mission-card-content .mission-card-detail {
+    display: -webkit-box;
+    color: var(--black) !important;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}

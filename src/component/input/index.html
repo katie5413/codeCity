@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <script src="src/library/jquery.min.js"></script>
+    <script src="src/common/common.js"></script>
+    <link rel="stylesheet" href="src/common/common.css">
+    <link rel="stylesheet" href="./index.css">
+    <link rel="shortcut icon" type="image/png" href=""/>
+    <title>CodeCity</title>
+</head>
+<body>
+    <div class="container">
+        <div class="input_box must_fill">
+            <div class="title">大小寫字母、數字、底線、點<span>必填</span></div>
+            <!-- <input type="text" class="textNumberLineDot" placeholder="請輸入"/>
+            <div class="hide textNumberLineDotLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\w_.]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">大小寫字母、數字、底線</div>
+            <!-- <input type="text" class="textNumberLine" placeholder="請輸入"/>
+            <div class="hide textNumberLineLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\w_]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">大小寫字母、數字、橫線</div>
+            <!-- <input type="text" class="textNumberDash" placeholder="請輸入"/>
+            <div class="hide textNumberDashLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\w-]/g,'')"/>
+        </div>
+        <div class="input_box must_fill">
+            <div class="title">大小寫字母、數字<span>必填</span></div>
+            <!-- <input type="text" class="textNumber" placeholder="請輸入"/>
+            <div class="hide textNumberLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[\W]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">小寫字母、數字、底線</div>
+            <!-- <input type="text" class="smalltextNumberLine" placeholder="請輸入"/>
+            <div class="hide smalltextNumberLineLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^a-z0-9_]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">數字</div>
+            <!-- <input type="text" class="number" placeholder="請輸入"/>
+            <div class="hide numberLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/\D/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">數字、點</div>
+            <!-- <input type="text" class="numberDot" placeholder="請輸入"/>
+            <div class="hide numberDotLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\d.]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">數字、橫線</div>
+            <!-- <input type="text" class="numberDash" placeholder="請輸入"/>
+            <div class="hide numberDashLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\d-]/g,'');"/>
+        </div>
+        <div class="input_box">
+            <div class="title">大小寫字母</div>
+            <!-- <input type="text" class="text" placeholder="請輸入"/>
+            <div class="hide textLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^a-zA-Z]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">中文</div>
+            <!-- <input type="text" class="chinese" placeholder="請輸入"/>
+            <div class="hide chineseLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\u3400-\u4DBF\u3100-\u312F\u2E80-\u2FDF\u4E00-\u9FFF\uF900-\uFAFF\u02C9\u02CA\u02C7\u02CB\u02D9]/g,'')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">中文、大小寫字母、數字</div>
+            <!-- <input type="text" class="chineseTextNumber" placeholder="請輸入"/>
+            <div class="hide chineseTextNumberLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\w\u3400-\u4DBF\u3100-\u312F\u2E80-\u2FDF\u4E00-\u9FFF\uF900-\uFAFF\u02C9\u02CA\u02C7\u02CB\u02D9]/g, '')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">中文、大小寫字母、數字、中文標點、英文標點</div>
+            <!-- <input type="text" class="chineseTextNumberSymbol" placeholder="請輸入"/>
+            <div class="hide chineseTextNumberSymbolLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^\w\u3400-\u4DBF\u3100-\u312F\u2E80-\u2FDF\u4E00-\u9FFF\uF900-\uFAFF\u02C9\u02CA\u02C7\u02CB\u02D9]/g, '')"/>
+        </div>
+        <div class="input_box">
+            <div class="title">0、1</div>
+            <!-- <input type="text" class="zeroOne" placeholder="請輸入"/>
+            <div class="hide zeroOneLegalValue"></div> -->
+            <input type="text" onkeyup="value=value.replace(/[^0-1]/g,'')"/>
+        </div>
+        <button class="check">檢查</button>
+    </div>
+    <script src="./index.js"></script>
+</body>
+</html>

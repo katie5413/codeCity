@@ -1,0 +1,72 @@
+:root {
+    --black: #333;
+    --primary-green: #4b6561;
+    --secondary-green: #508b82;
+    --light-green: #91b1b3;
+    --background: #ecfeff;
+    --mango: #fccb88;
+    --alert: #fc5c81;
+    --alert-dark: #f23a65;
+    --function: #4fbfc0;
+    --function-dark: #2a5f79;
+    --gray: #dfe9e9;
+    --dark-gray: #c4c4c4;
+    --gray-lighter: #eff4f4;
+    --light-gray: #f5f8f8;
+}
+
+.submitCard {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--gray-lighter);
+    cursor: pointer;
+}
+
+.submitCard:hover {
+    box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
+}
+
+.submitCard .user {
+    display: flex;
+    align-items: center;
+}
+
+.submitCard .user .user_img {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+}
+
+.submitCard .user .user_img img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    padding: 4px;
+}
+
+.submitCard .user .name {
+    display: flex;
+    align-items: center;
+    color: var(--black) !important;
+    font-weight: 900;
+}
+
+.submitCard .submit-mission-score {
+    display: flex;
+    gap: 4px;
+}
+
+.submitCard .submit-mission-score .no-score {
+    color: var(--function) !important;
+}
+
+.submitCard .submit-mission-score img {
+    width: 20px;
+}

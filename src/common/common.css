@@ -1,0 +1,148 @@
+:root {
+    --black: #333;
+    --primary-green: #4b6561;
+    --secondary-green: #508b82;
+    --light-green: #91b1b3;
+    --background: #ecfeff;
+    --mango: #fccb88;
+    --alert: #fc5c81;
+    --alert-dark: #f23a65;
+    --function: #4fbfc0;
+    --function-dark: #2a5f79;
+    --gray: #dfe9e9;
+    --dark-gray: #c4c4c4;
+    --gray-lighter: #eff4f4;
+    --light-gray: #f5f8f8;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "PingFang TC", Avenir, "Noto Sans TC", "Microsoft JhengHei",
+        sans-serif;
+}
+
+html {
+    overflow-x: hidden;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+body {
+    background: #ffffff;
+    font-size: 14px;
+    position: relative;
+    height: 100%;
+    white-space: nowrap;
+    color: var(--black);
+}
+
+body.fixed {
+    overflow: hidden;
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+img {
+    border: none;
+}
+
+ol,
+ul,
+li {
+    list-style: none;
+}
+
+input,
+textarea,
+select,
+button {
+    font-size: 14px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+.form__input {
+    margin-right: 30px;
+    width: 100%;
+}
+
+.tabs .tabs__content .top .form__input:last-child {
+    margin-right: 0;
+}
+
+.form__input .title {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: var(--primary-green);
+    margin-bottom: 10px;
+}
+
+.form__input .must__fill-label {
+    font-size: 12px;
+    letter-spacing: 0.4px;
+    color: var(--function);
+}
+
+.form__input .input {
+    padding: 9px 16px;
+    box-sizing: border-box;
+    border-radius: 8px;
+    border: 1px solid #f2f2f2;
+    width: 100%;
+}
+
+.form__input .input:focus {
+    border-color: var(--function);
+}
+
+.form__input.form__disable .input:focus {
+    border-color: #f2f2f2;
+}
+
+.form__input.form__disable .title {
+    color: var(--primary-green);
+}
+
+.form__input.form__disable .input {
+    color: var(--light-green);
+    background-color: #fafafa;
+}
+
+::placeholder {
+    color: var(--light-green);
+    opacity: 1;
+}
+
+:-ms-input-placeholder {
+    color: var(--light-green);
+}
+
+::-ms-input-placeholder {
+    color: var(--light-green);
+}
+
+.form__input .condition__box {
+    display: flex;
+    align-items: center;
+}
+
+.form__input .condition__box .condition__button {
+    margin-right: 8px;
+}
+
+.form__input .condition__box .condition__button.condition__button-read-only {
+    opacity: 0.4;
+}

@@ -1,0 +1,203 @@
+.pop {
+    position: fixed;
+    z-index: 3;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    padding: 20px 0;
+    box-sizing: border-box;
+    background-color: rgba(0, 0, 0, 0.4);
+    transition: opacity 0.3s;
+    overflow-y: scroll;
+}
+
+.pop.open {
+    opacity: 1;
+    height: 100%;
+    pointer-events: auto;
+}
+
+.pop.close {
+    opacity: 0;
+    height: 0%;
+    background-color: transparent;
+    pointer-events: none;
+}
+
+.pop > .inner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    padding: 20px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    background-color: #fff;
+    margin: 0 auto;
+}
+
+.pop .inner .top {
+    display: flex;
+    justify-content: space-between;
+}
+
+.pop .inner .top .title {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: 500;
+    letter-spacing: 1px;
+    color: #2d2d2d;
+}
+
+.pop .inner .top .header__icon {
+    margin-right: 8px;
+    width: 18px;
+    height: 18px;
+}
+
+.pop .inner .top .close {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background-color: var(--primary-green);
+    line-height: 24px;
+    color: #fff;
+    text-align: center;
+    cursor: pointer;
+}
+
+.pop .inner .content {
+    margin-top: 40px;
+}
+
+.pop .inner .content .subtitle {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: var(--function);
+}
+
+.pop .inner .content .textarea {
+    width: 100%;
+    height: 100px;
+    border-radius: 8px;
+    border: solid 1px #f2f2f2;
+    margin-top: 10px;
+    padding: 10px 16px;
+    box-sizing: border-box;
+    font-size: 14px;
+}
+
+.pop .inner .buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 40px;
+}
+
+.pop .inner .buttons .button {
+    width: 80px;
+}
+
+#addMission .inner,
+#editMission .inner {
+    width: 50%;
+}
+
+/* 選單若是過長 */
+#addMission .select-items,
+#editMission .select-items {
+    max-height: 200px;
+    overflow-y: scroll;
+}
+
+#viewImg .inner {
+    width: 80%;
+    height: 80%;
+    background: none;
+}
+
+#viewImg .inner img {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    max-width: calc(100% - 20px);
+    max-height: calc(100% - 20px);
+}
+
+.content .mission {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.content .mission .setting-top {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+}
+
+.content .mission .img {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: contain;
+    border-radius: 8px;
+    height: 300px;
+}
+
+.content .mission .img img {
+    object-fit: contain;
+    border-radius: 8px;
+    max-height: -webkit-fill-available;
+    max-width: -webkit-fill-available;
+}
+
+.content .mission .img.default {
+    background-color: #d4e2e2;
+    cursor: pointer;
+}
+
+.content .mission .img.default img {
+    height: 30px;
+    width: 30px;
+}
+
+.content .mission .mission_detail {
+    display: flex;
+    flex-direction: column;
+}
+
+.content .mission .mission_detail .form__input {
+    margin-bottom: 16px;
+}
+
+.content .mission .setting-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.content .mission .setting-bottom textarea {
+    max-width: 100%;
+    max-height: 150px;
+}
+
+.pop .inner .content .notice {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: var(--function);
+    margin-top: 10px;
+}
+
+.pop .inner .content .alert {
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.4px;
+    color: var(--alert);
+    margin-top: 10px;
+}
