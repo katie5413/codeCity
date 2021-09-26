@@ -6,7 +6,7 @@ include "pdoInc.php";
 <html>
 
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script src="src/library/jquery/jquery.min.js"></script>
@@ -151,10 +151,28 @@ include "pdoInc.php";
         }
 
         .buttons {
-            display: grid;
-            grid-template-columns: 80px 1fr 80px;
+            display: flex;
+            align-items: center;
             gap: 16px;
             width: 100%;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--function);
+            padding: 6px 12px;
+            border-radius: 8px;
+            margin-right: 8px;
+        }
+
+        .checkbox input {
+            margin-right: 8px;
+        }
+
+        .checkbox label {
+            color: var(--function);
         }
 
         #content .banner {
@@ -204,96 +222,80 @@ include "pdoInc.php";
 
 <body>
     <div id="content">
-        <div class="left">
+        <form class="left form" action="src/action/signup.php" method="post" enctype="multipart/form-data">
             <div class="tab">
                 <div class="user">
-                    <div class="avatar" id="previewDiv">
-                        <img class="user_img" src="src/img/icon/girl.svg" alt="avatar" />
-                    </div>
+                    <input type="file" name="reg_file" id="reg_file" accept=".jpg, .jpeg, .png, .svg" hidden />
+                    <label for="reg_file">
+                        <div class="avatar" id="previewDiv">
+                            <img class="user_img" src="src/img/icon/uploadImg.svg" alt="avatar" />
+                        </div>
+                    </label>
+
                 </div>
-                <form class="form" action="src/action/login.php" method="post" enctype="multipart/form-data">
+                <div>
                     <div class="form__input">
-                        <input type="radio" id="student" name="reg_identity" value="student" checked>
-                        <label for="student">學生</label>
-                        <input type="radio" id="teacher" name="reg_identity" value="teacher">
-                        <label for="teacher">教師</label>
+                        <div class="checkbox">
+                            <input type="radio" id="student" name="reg_identity" value="student" checked>
+                            <label for="student">學生</label>
+                        </div>
+                        <div class="checkbox">
+                            <input type="radio" id="teacher" name="reg_identity" value="teacher">
+                            <label for="teacher">教師</label>
+                        </div>
+
                     </div>
 
-                    <input type="file" name="reg_file" id="imagesfile" accept=".jpg, .jpeg, .png, .svg" />
                     <div class="form__input account">
                         <img src="src/img/icon/user-dark.svg" />
-                        <input class="input" type="text" name="reg_name" placeholder="請輸入帳號名稱" required />
+                        <input class="input" type="text" name="reg_name" placeholder="請輸入姓名" onkeyup="value=value.replace(/[^\w\u3400-\u4DBF\u3100-\u312F\u2E80-\u2FDF\u4E00-\u9FFF\uF900-\uFAFF\u02C9\u02CA\u02C7\u02CB\u02D9]/g, '')" />
                     </div>
-                    <!--
                     <div class="form__input school">
                         <img src="src/img/icon/class-dark.svg" />
                         <div class="drop__container">
-                            <input class="select-selected" type="text" placeholder="請選擇學校" name="school"/>
+                            <input class="select-selected" type="text" placeholder="請選擇學校" name="reg_school" onkeyup="value=value.replace(/[^\w\u3400-\u4DBF\u3100-\u312F\u2E80-\u2FDF\u4E00-\u9FFF\uF900-\uFAFF\u02C9\u02CA\u02C7\u02CB\u02D9]/g, '')" />
                             <img src="src/img/icon/right-dark.svg" alt="icon" class="icon">
                             <div class="line"></div>
                             <div class="select-items">
-                                <div class="option" value="1">學校1</div>
-                                <div class="option" value="2">學校2</div>
-                                <div class="option" value="3">學校3</div>
-                                <div class="option" value="4">學校4</div>
+                                <?php
+                                $sth = $dbh->prepare('SELECT * FROM school');
+                                $sth->execute();
+                                while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                    echo '<div class="option" value=' . $row['id'] . '>' . $row['name'] . '</div>';
+                                }
+                                ?>
                             </div>
                         </div>
                     </div>
-                    -->
                     <div class="form__input email">
                         <img src="src/img/icon/email.svg" />
-                        <input class="input" type="mail" name="reg_email" placeholder="請輸入信箱" required />
+                        <input class="input" type="mail" name="reg_email" placeholder="請輸入信箱作為綁定帳號" onkeyup="value=value.replace(/[^\w_.@!#$%&'*+-/=?^_`{|}~]/g,'')" />
                     </div>
                     <div class="form__input password">
                         <img src="src/img/icon/lock.svg" />
-                        <input class="input" type="password" name="reg_password" placeholder="請輸入密碼" required />
+                        <input class="input" type="password" name="reg_password" placeholder="請輸入密碼" onkeyup="value=value.replace(/[^\w_.]/g,'')" />
                     </div>
                     <div class="form__input password">
                         <img src="src/img/icon/lock.svg" />
-                        <input class="input" type="password" name="reg_password2" placeholder="再輸入密碼" required />
+                        <input class="input" type="password" name="reg_password2" placeholder="再次輸入密碼" onkeyup="value=value.replace(/[^\w_.]/g,'')" />
                     </div>
                     <div class="buttons">
-                        <button class="login-btn button-fill">
-                            <input type="submit" name="submit" value="提交">
+                        <a href="index.php"><button class="signup-btn button-hollow">已有帳號</button></a>
+                        <button class="login-btn button-fill" type="submit">
+                            提交
                         </button>
                     </div>
-                </form>
+                </div>
             </div>
-        </div>
+        </form>
         <div class="banner">
             <img src="src/img/3Dcity.svg" />
         </div>
 
     </div>
-    <!--
-<table border="1">
-        <tr>
-            <th>資料序號</th>
-            <th>當日排名</th>
-            <th>前日排名</th>
-            <th>歌曲名稱</th>
-            <th>演 唱 者</th>
-        </tr>
-        <?php
-        /*$sql = "SELECT * from songrank";
-        $sth = $dbh->query($sql);
-        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-            echo "<tr><td>" . $row['id'] . "</td>";
-            echo "<td>" . $row['this_rank'] . "</td>";
-            echo "<td>" . $row['prev_rank'] . "</td>";
-            echo "<td>" . $row['song_name'] . "</td>";
-            echo "<td>" . $row['singer_name'] . "</td><tr>";
-        }*/
-        ?>
-    </table>
--->
-
-
-
-
 </body>
 <script>
-    $("#imagesfile").change(function() {
+    $("#reg_file").change(function() {
 
         var file = this.files[0];
         console.log(file);

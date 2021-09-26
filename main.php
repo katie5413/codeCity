@@ -385,7 +385,6 @@ if ($findStudentData->rowCount() >= 1) {
             }
         })
         $('#selectAward').attr('value', $(this)[0].innerHTML);
-        //console.log($(this)[0].innerHTML);
     });
     $('.mission-board .mission-board-function .filter .mission-board-button').click(function() {
         $('.mission-board .mission-board-function .filter .mission-board-button').removeClass('active');
