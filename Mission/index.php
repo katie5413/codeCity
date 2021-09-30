@@ -564,6 +564,12 @@ if (isset($_GET['missionID'])) {
                 </div>
                 <div class="content">
                     <div class="mission">
+                        <div class="setting-bottom">
+                            <div class="form__input msg_text">
+                                <div class="title">留言<span class="must__fill-label">必填</span></div>
+                                <textarea class="input" type="text" id="msg_text_update" name="msg_text_update" placeholder="請輸入留言文字"></textarea>
+                            </div>
+                        </div>
                         <div class="submit-top">
                             <input type="file" name="upload_msg_img_update" id="upload_msg_img_update" accept=".jpg, .jpeg, .png, .svg" hidden />
                             <label for="upload_msg_img_update">
@@ -571,12 +577,6 @@ if (isset($_GET['missionID'])) {
                                     <img class="msg_img" src="../src/img/icon/image-dark.svg" alt="msg">
                                 </div>
                             </label>
-                        </div>
-                        <div class="setting-bottom">
-                            <div class="form__input msg_text">
-                                <div class="title">留言<span class="must__fill-label">必填</span></div>
-                                <textarea class="input" type="text" id="msg_text_update" name="msg_text_update" placeholder="請輸入留言文字"></textarea>
-                            </div>
                         </div>
                     </div>
                 </div>
