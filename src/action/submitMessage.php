@@ -36,12 +36,13 @@ if (isset($_FILES["upload_msg_img"]["name"]) || isset($_POST['msg_text'])) {
     } else {
         $isTeacher = 0;
     }
+
     if($submitContent != null){
         $sth = $dbh->prepare('INSERT INTO message (img, imgType, content,ownerID, missionID, studentID, isTeacher) VALUES (?, ?, ?, ?, ?,?,?)');
         $sth->execute(array($submitImg, $submitImgType, $submitContent, $_SESSION['user']['id'], $_SESSION['missionID'], $_SESSION['homeworkOwner'], $isTeacher));
     }
     
-    echo '<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">';
+    echo '<script>history.go(-1);</script>';
 } else {
     die('<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">');
 }

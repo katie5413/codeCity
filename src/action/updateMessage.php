@@ -42,10 +42,7 @@ if (isset($_FILES["upload_msg_img_update"]["name"]) || isset($_POST['msg_text_up
         $submitContent = null;
     }
 
-
-
-
-    echo '<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">';
+    echo '<script>history.go(-1);</script>';
 } else {
     die('<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">');
 }
