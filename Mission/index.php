@@ -35,7 +35,7 @@ if (isset($_GET['missionID'])) {
                 $homeworkStatusText = '<div class="no-score">評分中</div>';
             } else {
                 $status = '';
-                for ($i = 1; $i < 6; $i++) {
+                for ($i = 1; $i < 4; $i++) {
                     $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
                     $status .= $star;
                 }
@@ -91,14 +91,14 @@ if (isset($_GET['missionID'])) {
 
             if ($homeworkStatus === 0) {
                 $status = '';
-                for ($i = 1; $i < 6; $i++) {
+                for ($i = 1; $i < 4; $i++) {
                     $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
                     $status .= $star;
                 }
                 $homeworkStatusText = $status;
             } else {
                 $status = '';
-                for ($i = 1; $i < 6; $i++) {
+                for ($i = 1; $i < 4; $i++) {
                     $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
                     $status .= $star;
                 }
@@ -531,6 +531,12 @@ if (isset($_GET['missionID'])) {
                 </div>
                 <div class="content">
                     <div class="mission">
+                        <div class="setting-bottom">
+                            <div class="form__input msg_text">
+                                <div class="title">留言<span class="must__fill-label">必填</span></div>
+                                <textarea class="input" type="text" name="msg_text" placeholder="請輸入留言文字"></textarea>
+                            </div>
+                        </div>
                         <div class="submit-top">
                             <input type="file" name="upload_msg_img" id="upload_msg_img" accept=".jpg, .jpeg, .png, .svg" hidden />
                             <label for="upload_msg_img">
@@ -538,12 +544,6 @@ if (isset($_GET['missionID'])) {
                                     <img class="msg_img" src="../src/img/icon/image-dark.svg" alt="msg">
                                 </div>
                             </label>
-                        </div>
-                        <div class="setting-bottom">
-                            <div class="form__input msg_text">
-                                <div class="title">留言<span class="must__fill-label">必填</span></div>
-                                <textarea class="input" type="text" name="msg_text" placeholder="請輸入留言文字"></textarea>
-                            </div>
                         </div>
                     </div>
                 </div>
