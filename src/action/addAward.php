@@ -31,7 +31,7 @@ if ($_SESSION['user']['identity'] === 'teacher' && isset($_POST['award_name']) &
         }
     }
 
-    $addMission = $dbh->prepare('INSERT INTO award (name img) VALUES (?, ?)');
+    $addMission = $dbh->prepare('INSERT INTO award (name, img) VALUES (?, ?)');
     $addMission->execute(array($name, $submitImg));
 
     echo '<meta http-equiv="refresh" content="0; url=../../Award/index.php">';
