@@ -267,3 +267,38 @@ h2 {
     .input:focus {
     border-color: var(--function);
 }
+
+
+.tab .tab-content .tab-content-bottom .sub-title a {
+    color: var(--black) !important;
+}
+
+.tab .tab-content .tab-content-bottom .sub-title.form__input {
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    border-radius: 8px;
+    border: 1px solid #fff;
+}
+
+.tab .tab-content .tab-content-bottom .sub-title.form__input.edit {
+    border: 1px solid var(--gray-lighter);
+}
+
+.tab .tab-content .tab-content-bottom .sub-title.form__input input {
+    font-size: 24px;
+    font-weight: bold;
+    line-height: 1.5;
+    color: var(--function) !important;
+    padding: 0;
+    width: auto;
+}
+
+.tab .tab-content .tab-content-bottom .edit-userName {
+    width: 24px;
+    margin: 0 8px;
+}
+
+.tab .tab-content .tab-content-bottom .sub-title.active {
+    color: var(--function) !important;
+}

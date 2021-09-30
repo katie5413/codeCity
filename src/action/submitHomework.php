@@ -5,7 +5,7 @@ include('../../pdoInc.php');
 
 
 if (isset($_FILES["upload_mission_img"]["name"]) || isset($_POST['submit_mission_link'])) {
-    if (isset($_FILES["upload_mission_img"]["name"])) {
+    if (isset($_FILES["upload_mission_img"]["name"]) && $_FILES["upload_mission_img"]["name"] != '') {
         if ($_FILES["upload_mission_img"]["size"] / 1024 > 5 * 1024) {
             echo '<script>alert(\'\')</script>';
             die('<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">');
@@ -25,14 +25,16 @@ if (isset($_FILES["upload_mission_img"]["name"]) || isset($_POST['submit_mission
         $submitImgType = null;
     }
 
-    if (isset($_POST['submit_mission_link'])) {
+    if (isset($_POST['submit_mission_link']) && $_POST['submit_mission_link'] != '') {
         $submitLink = htmlspecialchars($_POST['submit_mission_link']);
     } else {
         $submitLink = null;
     }
 
-    $sth = $dbh->prepare('INSERT INTO homework (img, imgType, imgLink,studentID, missionID) VALUES (?, ?, ?, ?, ?)');
-    $sth->execute(array($submitImg, $submitImgType, $submitLink, $_SESSION['user']['id'], $_SESSION['missionID']));
+    if ($submitLink != null || $submitImg != null) {
+        $sth = $dbh->prepare('INSERT INTO homework (img, imgType, imgLink,studentID, missionID) VALUES (?, ?, ?, ?, ?)');
+        $sth->execute(array($submitImg, $submitImgType, $submitLink, $_SESSION['user']['id'], $_SESSION['missionID']));
+    }
 
     echo '<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">';
 } else {

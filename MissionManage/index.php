@@ -29,16 +29,12 @@ if (isset($_GET['missionID'])) {
         }
 
         // 作業開放時間
-        $startTime = substr($missionData['startTime'], 0, -3);
         $endTime = substr($missionData['endTime'], 0, -3);
 
-        $start = strtotime($startTime);
-        $end = strtotime($startTime);
+        $end = strtotime($endTime);
         $now = time();
         $period = '';
-        if ($now < $start) {
-            $period = 'not-start';
-        } else if ($now >= $start && $now <= $end) {
+        if ($now <= $end) {
             $period = 'start';
         } else {
             $period = 'end';
@@ -60,7 +56,7 @@ if (isset($_GET['missionID'])) {
 <html>
 
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script src="../src/library/jquery/jquery.min.js"></script>
@@ -68,6 +64,7 @@ if (isset($_GET['missionID'])) {
     <script src="../src/library/daterangepicker/daterangepicker.min.js"></script>
     <script src="../src/common/common.js"></script>
     <script src="../src/component/dropBox/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/common/common.css">
     <link rel="stylesheet" type="text/css" href="../src/library/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" type="text/css" href="../src/component/missionCard/index.css">
@@ -77,6 +74,7 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務管理</title>
 </head>
@@ -120,14 +118,18 @@ if (isset($_GET['missionID'])) {
                         </a>
                     </li>
                     -->
-                    <li>
+                    <?php
+                    if ($_SESSION['user']['identity'] !== 'teacher') {
+                        echo '<li>
                         <a href="../Game" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="../src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>
+                    </li>';
+                    }
+                    ?>
                     <li class="active">
                         <a href="../main.php">
                             <div class="item" aria-hidden="true">
@@ -181,7 +183,7 @@ if (isset($_GET['missionID'])) {
                 </div>
                 <div class="mission-session">
                     <!-- start end not-start -->
-                    <h2 class="mission_time <?php echo $period; ?>"><?php echo $startTime; ?> - <?php echo $endTime; ?></h2>
+                    <h2 class="mission_time <?php echo $period; ?>"><?php echo $endTime; ?></h2>
                     <!-- star no-score not-submit -->
                 </div>
                 <div class="mission-submit-area">
@@ -231,7 +233,7 @@ if (isset($_GET['missionID'])) {
                                         $homeworkStatusText = '<div class="no-score">待評分</div>';
                                     } else {
                                         $status = '';
-                                        for ($i = 1; $i < 6; $i++) {
+                                        for ($i = 1; $i < 4; $i++) {
                                             $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
                                             $status .= $star;
                                         }
@@ -243,16 +245,14 @@ if (isset($_GET['missionID'])) {
                                     }
 
                                     echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $submitStudentList['missionID'] . '&&studentID=' . $submitStudentList['studentID'] . '">
-                                    <div class="user">
-                                        <div class="user_img">
-                                            <img src="' . $submitStudentList['img'] . '" alt="' . $submitStudentList['name'] . '" />
-                                        </div>
-                                        <div class="name">' . $submitStudentList['name'] . '</div>
-                                    </div>
-                                    <div class="submit-mission-score">
-                                        ' . $homeworkStatusText . '
-                                    </div>
-                                </a>';
+                                            <div class="user">
+                                                <div class="user_img">
+                                                    <img src="' . $submitStudentList['img'] . '" alt="' . $submitStudentList['name'] . '" />
+                                                </div>
+                                                <div class="name">' . $submitStudentList['name'] . '</div>
+                                            </div>
+                                            <div class="submit-mission-score">' . $homeworkStatusText . '</div>
+                                            </a>';
                                 }
                                 ?>
                             </div>
@@ -349,14 +349,18 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div class="form__input">
                                 <div class="title">啟動區間<span class="must__fill-label">必填</span></div>
-                                <input type="text" name="missionPeriod_update" class="input input__must_fill calendar" value="<?php echo $startTime; ?> - <?php echo $endTime; ?>" autocomplete="off" />
+                                <input type="text" name="missionPeriod_update" class="input input__must_fill calendar" value="<?php echo $endTime; ?>" autocomplete="off" />
                             </div>
                         </div>
                     </div>
                     <div class="setting-bottom">
                         <div class="form__input mission_info">
                             <div class="title">任務說明<span class="must__fill-label">必填</span></div>
-                            <textarea class="input input__must_fill" type="text" name="missionDetail_update" placeholder="請輸入任務說明"><?php echo $missionData['detail']; ?></textarea>
+                            <div id="mark">
+                                <textarea id="editor" class="input input__must_fill" type="text" name="missionDetail_update" placeholder="請輸入任務說明" onkeyup="mark()"><?php echo $missionData['detail']; ?></textarea>
+                                <div id="markdownResult" class="codeCity-markdown border">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -370,9 +374,19 @@ if (isset($_GET['missionID'])) {
     <!-- content end-->
 </body>
 <script>
+    function mark() {
+        $('#markdownResult').remove();
+        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
+    }
+
+    const markResult = marked($('.mission-submit-area .mission-card-detail').html());
+    $('.mission-submit-area .mission-card-detail').remove();
+    $('.mission-submit-area .mission-card-content').append(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
+
     // date picker
     moment.locale('zh-TW');
     $('.calendar').daterangepicker({
+        singleDatePicker: true,
         timePicker: true,
         timePicker24Hour: true,
         showDropdowns: true,

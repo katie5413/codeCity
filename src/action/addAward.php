@@ -1,10 +1,20 @@
 <?php
 session_start();
 include('../../pdoInc.php');
-if ($_SESSION['user']['identity'] === 'teacher' && isset($_POST['award_name']) || isset($_FILES["upload_award_img"]["name"]) || isset($_POST['award_link'])) {
+if ($_SESSION['user']['identity'] === 'teacher' && isset($_POST['award_name']) && isset($_FILES["upload_award_img"]["name"])) {
     $name =  htmlspecialchars($_POST['award_name']);
 
-    if (isset($_FILES["upload_award_img"]["name"])) {
+    // 未輸入獎勵名稱
+    if($name == ''){
+        echo '<script>alert(\'Must fill award name\')</script>';
+        die('<meta http-equiv="refresh" content="0; url=../../Award/index.php">');
+    }
+
+    // 未上傳圖片
+    if ($_FILES["upload_award_img"]["name"] == '') {
+        echo '<script>alert(\'Must upload award Img\')</script>';
+        die('<meta http-equiv="refresh" content="0; url=../../Award/index.php">');
+    } else {
         if ($_FILES["upload_award_img"]["size"] / 1024 > 5 * 1024) {
             echo '<script>alert(\'Too Big! No more than 5MB\')</script>';
             die('<meta http-equiv="refresh" content="0; url=../../Award/index.php">');
@@ -19,19 +29,10 @@ if ($_SESSION['user']['identity'] === 'teacher' && isset($_POST['award_name']) |
             $submitImg = null;
             $submitImgType = null;
         }
-    } else {
-        $submitImg = null;
-        $submitImgType = null;
     }
 
-    if (isset($_POST['award_link'])) {
-        $link =  htmlspecialchars($_POST['award_link']);
-    } else {
-        $link = null;
-    }
-
-    $addMission = $dbh->prepare('INSERT INTO award (name, img_link, img) VALUES (?, ?, ?)');
-    $addMission->execute(array($name, $link, $submitImg));
+    $addMission = $dbh->prepare('INSERT INTO award (name img) VALUES (?, ?)');
+    $addMission->execute(array($name, $submitImg));
 
     echo '<meta http-equiv="refresh" content="0; url=../../Award/index.php">';
 } else {

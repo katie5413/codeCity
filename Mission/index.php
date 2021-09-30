@@ -110,16 +110,11 @@ if (isset($_GET['missionID'])) {
     }
 
     // 作業開放時間
-    $startTime = substr($missionData['startTime'], 0, -3);
     $endTime = substr($missionData['endTime'], 0, -3);
-
-    $start = strtotime($startTime);
-    $end = strtotime($startTime);
+    $end = strtotime($endTime);
     $now = time();
     $period = '';
-    if ($now < $start) {
-        $period = 'not-start';
-    } else if ($now >= $start && $now <= $end) {
+    if ($now <= $end) {
         $period = 'start';
     } else {
         $period = 'end';
@@ -156,6 +151,7 @@ if (isset($_GET['missionID'])) {
     <script src="../src/library/daterangepicker/daterangepicker.min.js"></script>
     <script src="../src/common/common.js"></script>
     <script src="../src/component/dropBox/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/common/common.css">
     <link rel="stylesheet" type="text/css" href="../src/library/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" type="text/css" href="../src/component/missionCard/index.css">
@@ -164,6 +160,7 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務</title>
 </head>
@@ -208,14 +205,18 @@ if (isset($_GET['missionID'])) {
                         </a>
                     </li>
                     -->
-                    <li>
+                    <?php
+                    if ($_SESSION['user']['identity'] !== 'teacher') {
+                        echo '<li>
                         <a href="../Game" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="../src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>
+                    </li>';
+                    }
+                    ?>
                     <li class="active">
                         <a href="../main.php">
                             <div class="item" aria-hidden="true">
@@ -266,7 +267,7 @@ if (isset($_GET['missionID'])) {
                 </div>
                 <div class="mission-session">
                     <!-- start end not-start -->
-                    <h2 class="mission_time <?php echo $period; ?>"><?php echo $startTime; ?> - <?php echo $endTime; ?></h2>
+                    <h2 class="mission_time <?php echo $period; ?>"><?php echo $endTime; ?></h2>
                     <!-- star no-score not-submit -->
                     <div class="mission-card-score">
                         <?php echo $homeworkStatusText; ?>
@@ -499,7 +500,7 @@ if (isset($_GET['missionID'])) {
             </form>
         </div>
         <div id="deleteHomework" class="pop close">
-            <form class="inner" action="" method="post">
+            <form class="inner" action="../src/action/deleteHomework.php" method="post">
                 <div class="top">
                     <div class="title">
                         <img class="header__icon" src="../src/img/icon/trash.svg" alt="icon">
@@ -610,7 +611,14 @@ if (isset($_GET['missionID'])) {
     <!-- content end-->
 </body>
 <script>
+    function mark() {
+        $('#markdownResult').remove();
+        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
+    }
 
+    const markResult = marked($('.mission-submit-area .mission-card-detail').html());
+    $('.mission-submit-area .mission-card-detail').remove();
+    $('.mission-submit-area .mission-card-content').append(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
 </script>
 <script src="../src/library/jquery.min.js"></script>
 <script src="../src/library/datatables/datatables.min.js"></script>

@@ -77,14 +77,18 @@ if (!isset($_SESSION['user']['email'])) {
                         </a>
                     </li>
                     -->
-                    <li>
+                    <?php
+                    if ($_SESSION['user']['identity'] !== 'teacher') {
+                        echo '<li>
                         <a href="../Game" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="../src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>
+                    </li>';
+                    }
+                    ?>
                     <li>
                         <a href="../main.php">
                             <div class="item" aria-hidden="true">
@@ -155,7 +159,13 @@ if (!isset($_SESSION['user']['email'])) {
 
                         </div>
                         <div class="user-data">
-                            <div class="username"><?php echo $_SESSION['user']['name']; ?></div>
+                            <div class="username"><?php if (isset($_SESSION['user']['name'])) {
+                                                        echo '
+                            <div class="sub-title active form__input">
+                                <img class="edit-UserName" src="../src/img/icon/edit.svg" />
+                                <input id="changeUserName" name="UserName" value="' . $_SESSION['user']['name'] . '" disabled/>
+                            </div>';
+                                                    } ?></div>
                             <!--<div class="data school">學校：NTNU</div>-->
                             <div class="data email">信箱：<?php echo $_SESSION['user']['email']; ?></div>
                             <div class="data class">班級：
@@ -212,6 +222,35 @@ if (!isset($_SESSION['user']['email'])) {
     </div>
     <!-- content end-->
 </body>
+<script>
+    $(".sub-title.form__input").click(function() {
+        $(this).addClass("edit");
+        $("#changeUserName").removeAttr("disabled");
+    });
+
+    $("#changeUserName").blur(function() {
+        $(".sub-title.form__input.edit").removeClass("edit");
+    });
+
+    const initClassName = $("#changeUserName").val();
+
+    // 改課程名
+    $(document).click(function(e) {
+        if (
+            $(".sub-title.form__input") !== e.target &&
+            !$(".sub-title.form__input").has(e.target).length
+        ) {
+            $(".sub-title.form__input").removeClass("edit");
+            if (initClassName !== $("#changeUserName").val()) {
+                changeUserName($("#changeUserName").val());
+            }
+        }
+    });
+
+    function changeUserName(name) {
+        window.location.href = `../src/action/changeUserName.php?name=${name}`;
+    }
+</script>
 
 <script src="../src/library/jquery.min.js"></script>
 <script src="../src/library/datatables/datatables.min.js"></script>

@@ -81,14 +81,19 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         </a>
                     </li>
                     -->
-                    <li>
+                    
+                    <?php
+                    if ($_SESSION['user']['identity'] !== 'teacher') {
+                        echo '<li>
                         <a href="../Game" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="../src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>
+                    </li>';
+                    }
+                    ?>
                     <li>
                         <a href="../main.php">
                             <div class="item" aria-hidden="true">
@@ -219,12 +224,13 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     <th>學生頭貼</th>
                                     <th>學生名稱</th>
                                     <th>學生信箱</th>
+                                    <th>學生金幣數</th>
                                     <th>查看</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php
-                                $findStudent = $dbh->prepare('SELECT id,img,email,name FROM student WHERE classID =?');
+                                $findStudent = $dbh->prepare('SELECT id,img,email,name,coins FROM student WHERE classID =?');
                                 $findStudent->execute(array($_GET["classID"]));
                                 $index = 0;
                                 while ($studentData = $findStudent->fetch(PDO::FETCH_ASSOC)) {
@@ -234,7 +240,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     }
                                     echo '<tr><td>' . $index . '</td><td><div class="avatar">
                                     <img src="' . $studentData['img'] . '" alt="avatar" />
-                                </div></td><td>' . $studentData['name'] . '</td><td>' . $studentData['email'] . '</td><td><a href="
+                                </div></td><td>' . $studentData['name'] . '</td><td>' . $studentData['email'] . '</td><td>' . $studentData['coins'] . '</td><td><a href="
                                     ?studentID=' . $studentData['id'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                 }
                                 ?>
@@ -247,7 +253,6 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                 <tr>
                                     <th>#</th>
                                     <th>任務名稱</th>
-                                    <th>開始時間</th>
                                     <th>截止時間</th>
                                     <th>作業狀態</th>
                                     <th>學生留言數</th>
@@ -256,7 +261,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                             </thead>
                             <tbody>
                                 <?php
-                                $findMission = $dbh->prepare('SELECT id, name, startTime, endTime FROM mission WHERE classID =?');
+                                $findMission = $dbh->prepare('SELECT id, name, endTime FROM mission WHERE classID =?');
                                 $findMission->execute(array($student['classID']));
                                 $index = 0;
                                 while ($missionData = $findMission->fetch(PDO::FETCH_ASSOC)) {
@@ -280,16 +285,16 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                             $homeworkStatusText = '<span class="function">待評分</span>';
                                         } else {
                                             $status = '';
-                                            for ($i = 1; $i < 6; $i++) {
+                                            for ($i = 1; $i < 4; $i++) {
                                                 $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
                                                 $status .= $star;
                                             }
                                             $homeworkStatusText = $status;
                                         }
 
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['startTime'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                     } else {
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['startTime'] . '</td><td>' . $missionData['endTime'] . '</td><td><span class="alert">未繳交</span></td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td><span class="alert">未繳交</span></td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                     }
                                 }
                                 ?>
@@ -325,8 +330,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                             <div class="line"></div>
                             <div class="select-items">
                                 <?php
-                                $sth = $dbh->prepare('SELECT id,name,email FROM student');
-                                $sth->execute();
+                                $sth = $dbh->prepare('SELECT id,name,email FROM student WHERE schoolID=?');
+                                $sth->execute(array($_SESSION['user']['schoolID']));
                                 while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                     echo '<div class="option" value=' . $row['id'] . '>' . $row['name'] . ' - [' . $row['email'] . ']</div>';
                                 }

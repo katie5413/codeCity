@@ -5,25 +5,28 @@ include "pdoInc.php";
 if (!isset($_SESSION['user']['email'])) {
     // 沒登入，滾出去
     die('<meta http-equiv="refresh" content="0; url=index.php">');
-} 
+}
 
 // 如果是老師，找 teacherID
-$findTeacherID = $dbh->prepare('SELECT id FROM  teacher WHERE email = ?');
+$findTeacherID = $dbh->prepare('SELECT id, schoolID FROM  teacher WHERE email = ?');
 $findTeacherID->execute(array($_SESSION['user']['email']));
-$teacherID = $findTeacherID->fetch(PDO::FETCH_ASSOC);
+$teacher= $findTeacherID->fetch(PDO::FETCH_ASSOC);
 if ($findTeacherID->rowCount() >= 1) {
-    $_SESSION['user']['id'] = $teacherID['id'];
+    $_SESSION['user']['id'] = $teacher['id'];
     $_SESSION['user']['identity'] = 'teacher';
+    $_SESSION['user']['schoolID'] = $teacher['schoolID'];
 }
 
 // 如果是學生
-$findStudentData = $dbh->prepare('SELECT id, classID FROM  student WHERE email = ?');
+$findStudentData = $dbh->prepare('SELECT id, classID,coins,schoolID FROM  student WHERE email = ?');
 $findStudentData->execute(array($_SESSION['user']['email']));
 $studentData = $findStudentData->fetch(PDO::FETCH_ASSOC);
 if ($findStudentData->rowCount() >= 1) {
     $_SESSION['user']['id'] = $studentData['id'];
     $_SESSION['user']['identity'] = 'student';
     $_SESSION['user']['classID'] = $studentData['classID'];
+    $_SESSION['user']['coins'] = $studentData['coins'];
+    $_SESSION['user']['schoolID'] = $studentData['schoolID'];
 }
 
 ?>
@@ -31,12 +34,13 @@ if ($findStudentData->rowCount() >= 1) {
 <html>
 
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script src="src/library/jquery/jquery.min.js"></script>
     <script src="src/library/moment-with-locales.min.js"></script>
     <script src="src/library/daterangepicker/daterangepicker.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="src/common/common.js"></script>
     <link rel="stylesheet" type="text/css" href="src/common/common.css">
     <link rel="stylesheet" type="text/css" href="src/library/daterangepicker/daterangepicker.css" />
@@ -45,6 +49,7 @@ if ($findStudentData->rowCount() >= 1) {
     <link rel="stylesheet" type="text/css" href="src/component/pop/index.css">
     <link rel="stylesheet" type="text/css" href="src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="src/component/datePicker/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="main.css?v=<?php echo time(); ?>">
 
 </head>
@@ -56,11 +61,11 @@ if ($findStudentData->rowCount() >= 1) {
                 <img class="logo" src="https://picsum.photos/400/300" alt="logo">
                 <div class="user">
                     <div class="avatar">
-                        <?php 
-                        if($_SESSION['user']['img']==1){
-                            echo '<img src="src/img/3Dcity.svg" alt="avatar" />'; 
-                        }else{
-                            echo '<img src="'.$_SESSION['user']['img'].'" alt="avatar" />'; 
+                        <?php
+                        if ($_SESSION['user']['img'] == 1) {
+                            echo '<img src="src/img/3Dcity.svg" alt="avatar" />';
+                        } else {
+                            echo '<img src="' . $_SESSION['user']['img'] . '" alt="avatar" />';
                         }
                         ?>
                     </div>
@@ -89,14 +94,19 @@ if ($findStudentData->rowCount() >= 1) {
                         </a>
                     </li>
                     -->
-                    <li>
+                    
+                    <?php
+                    if ($_SESSION['user']['identity'] !== 'teacher') {
+                        echo '<li>
                         <a href="Game/" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>
+                    </li>';
+                    }
+                    ?>
                     <li class="active">
                         <a href="main.php">
                             <div class="item" aria-hidden="true">
@@ -163,8 +173,6 @@ if ($findStudentData->rowCount() >= 1) {
                             <img src="src/img/icon/filter.svg" />
                             <button class="mission-board-button filter-btn all active">全部</button>
                             <div class="bar"></div>
-                            <button class="mission-board-button filter-btn not-start">未開始</button>
-                            <div class="bar"></div>
                             <button class="mission-board-button filter-btn start">已開始</button>
                             <div class="bar"></div>
                             <button class="mission-board-button filter-btn end">已結束</button>
@@ -173,14 +181,13 @@ if ($findStudentData->rowCount() >= 1) {
                     <div class="mission-board-card-area">
                         <?php
                         if ($_SESSION['user']['identity'] === 'teacher') {
-                            $sth = $dbh->prepare('SELECT * FROM mission WHERE teacherID = ? ORDER BY endTime DESC');
+                            $sth = $dbh->prepare('SELECT * FROM mission WHERE teacherID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['id']));
 
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                 $missionID = $row['id'];
                                 $missionName = $row['name'];
 
-                                $startTime = substr($row['startTime'], 0, -3);
                                 $endTime = substr($row['endTime'], 0, -3);
                                 $classID = $row['classID'];
 
@@ -195,7 +202,7 @@ if ($findStudentData->rowCount() >= 1) {
                                     $award = $awardItem['img'] !== NULL ? $awardItem['img'] : $awardItem['img_link'];
                                     $award = NULL ? 'src/img/3Dcity.svg' : $award;
                                 }
-                                $periodClass = checkPeriod($startTime, $endTime);
+                                $periodClass = checkPeriod($endTime);
                                 $detail = $row['detail'];
                                 $url = 'MissionManage/index.php?missionID=' . $missionID . '&classID=' . $classID . '';
 
@@ -209,19 +216,18 @@ if ($findStudentData->rowCount() >= 1) {
                                         ' . $missionName . '
                                         </h2>
                                     </div>
-                                    <div class="mission-card-time">' . $startTime . ' - ' . $endTime . '</div>
+                                    <div class="mission-card-time">' . $endTime . '</div>
                                     <div class="mission-card-detail">' . $detail . '</div>
                                 </div>
                             </div></a>';
                             }
                         } elseif ($_SESSION['user']['identity'] === 'student') {
-                            $sth = $dbh->prepare('SELECT * FROM mission WHERE classID = ? ORDER BY endTime DESC');
+                            $sth = $dbh->prepare('SELECT * FROM mission WHERE classID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['classID']));
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                 $missionID = $row['id'];
                                 $missionName = $row['name'];
                                 $award = '<img src="src/img/3Dcity.svg" />';
-                                $startTime = substr($row['startTime'], 0, -3);
                                 $endTime = substr($row['endTime'], 0, -3);
                                 $classID = $row['classID'];
 
@@ -238,7 +244,7 @@ if ($findStudentData->rowCount() >= 1) {
                                 }
 
                                 // 顯示課程期間狀態
-                                $periodClass = checkPeriod($startTime, $endTime);
+                                $periodClass = checkPeriod($endTime);
 
                                 $detail = $row['detail'];
                                 $url = 'Mission/index.php?missionID=' . $missionID . '';
@@ -255,7 +261,8 @@ if ($findStudentData->rowCount() >= 1) {
                                             $homeworkStatusText = '<div class="no-score">評分中</div>';
                                         } else {
                                             $status = '';
-                                            for ($i = 1; $i < 6; $i++) {
+                                            // 最多 3 星
+                                            for ($i = 1; $i < 4; $i++) {
                                                 $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="src/img/icon/star-disable.svg" />';
                                                 $status .= $star;
                                             }
@@ -280,23 +287,20 @@ if ($findStudentData->rowCount() >= 1) {
                                             ' . $homeworkStatusText . '
                                         </div>
                                     </div>
-                                    <div class="mission-card-time">' . $startTime . ' - ' . $endTime . '</div>
+                                    <div class="mission-card-time">' . $endTime . '</div>
                                     <div class="mission-card-detail">' . $detail . '</div>
                                 </div>
                             </div></a>';
                             }
                         }
 
-                        function checkPeriod($start, $end)
+                        function checkPeriod($end)
                         {
-                            $start = strtotime($start);
                             $end = strtotime($end);
                             $now = time();
 
                             $period = '';
-                            if ($now < $start) {
-                                $period = 'not-start';
-                            } else if ($now >= $start && $now <= $end) {
+                            if ($now <= $end) {
                                 $period = 'start';
                             } else {
                                 $period = 'end';
@@ -357,7 +361,12 @@ if ($findStudentData->rowCount() >= 1) {
                         <div class="setting-bottom">
                             <div class="form__input mission_info">
                                 <div class="title">任務說明<span class="must__fill-label">必填</span></div>
-                                <textarea class="input input__must_fill" name="missionDetail" type="text" name="mission_info" placeholder="請輸入任務說明"></textarea>
+                                <div id="mark">
+                                    <textarea id="editor" class="input input__must_fill" name="missionDetail" type="text" name="mission_info" placeholder="請輸入任務說明" onkeyup="mark()"></textarea>
+                                    <div id="markdownResult" class="codeCity-markdown border">
+                                        請輸入任務說明（支援 Markdown）
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -372,6 +381,15 @@ if ($findStudentData->rowCount() >= 1) {
     <!-- content end-->
 </body>
 <script>
+    const initText = '### H3\n#### H4\n一般文字\n★\n★★\n★★★\n'
+    $('#editor').append(initText);
+    $('#markdownResult').remove();
+    $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked(initText)}</div>`);
+
+    function mark() {
+        $('#markdownResult').remove();
+        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
+    }
     // 換圖片
     $('#selectAwardArea .select-items .option').on('click', function() {
         var selectAwardID = $(this).attr('value');
@@ -396,9 +414,6 @@ if ($findStudentData->rowCount() >= 1) {
         } else if (filter == 'start') {
             $(".mission-board-card-area .mission-card").hide();
             $(".mission-board-card-area .mission-card.start").fadeIn();
-        } else if (filter == 'not-start') {
-            $(".mission-board-card-area .mission-card").hide();
-            $(".mission-board-card-area .mission-card.not-start").fadeIn();
         } else if (filter == 'end') {
             $(".mission-board-card-area .mission-card").hide();
             $(".mission-board-card-area .mission-card.end").fadeIn();
@@ -437,11 +452,11 @@ if ($findStudentData->rowCount() >= 1) {
     moment.locale('zh-TW');
     $('.calendar').daterangepicker({
         timePicker: true,
+        singleDatePicker: true,
         timePicker24Hour: true,
         showDropdowns: true,
         autoApply: true,
         startDate: moment().startOf('hour'),
-        endDate: moment().startOf('hour').add(12, 'hour'),
         locale: {
             format: 'YYYY/MM/DD HH:mm'
         }

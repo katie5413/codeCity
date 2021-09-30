@@ -9,7 +9,7 @@ if (isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] !== '
 
 	if ($email !== '' && $password !== '') {
 		$password = hash('sha256', $password); //加密
-		$sth = $dbh->prepare('SELECT name, password,email, img, img_name FROM student WHERE email = ? AND password = ?');
+		$sth = $dbh->prepare('SELECT name, password,email, img, img_name, coins FROM student WHERE email = ? AND password = ?');
 		$sth->execute(array($email, $password));
 		$row = $sth->fetch(PDO::FETCH_ASSOC);
 		if ($sth->rowCount() >= 1) { //有帳密
@@ -18,6 +18,7 @@ if (isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] !== '
 				'email' => $email,
 				'img' => $row['img'],
 				'identity' => 'student',
+				'coins' => $row['coins'],
 			];
 			// 學生進入
 			die('<meta http-equiv="refresh" content="0; url=../../main.php">');
@@ -43,7 +44,6 @@ if (isset($_POST['email']) && isset($_POST['password']) && $_POST['email'] !== '
 		echo '<script>alert(\'Fail QQ\')</script>';
 		die('<meta http-equiv="refresh" content="0; url=../../index.php">');
 	}
-
-}else {
+} else {
 	die('<meta http-equiv="refresh" content="0; url=../../signup.php">');
 }

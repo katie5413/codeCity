@@ -176,13 +176,18 @@ h2.mission_time.not-start {
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.08);
 }
 
-.tab .tab-content .gallery .gallery-item .image img{
+.tab .tab-content .gallery .gallery-item .image img {
     object-fit: contain;
     height: 216px;
     width: -webkit-fill-available;
 }
 
-.tab .tab-content .gallery .gallery-item .name{
+.tab .tab-content .gallery .gallery-item .top {
+    display: flex;
+    margin-bottom: 16px;
+}
+
+.tab .tab-content .gallery .gallery-item .top .index {
     font-size: 12px;
     font-weight: bold;
     line-height: 1.5;
@@ -190,9 +195,19 @@ h2.mission_time.not-start {
     padding: 4px 12px;
     color: #fff;
     width: fit-content;
+    border-radius: 50%;
+    text-align: center;
+}
+
+.tab .tab-content .gallery .gallery-item .name {
+    font-size: 12px;
+    font-weight: bold;
+    line-height: 1.5;
+    color: var(--function) !important;
+    padding: 4px 12px;
+    width: fit-content;
     border-radius: 8px;
     text-align: center;
-    margin-bottom: 16px;
 }
 
 .tab .tab-content .gallery .gallery-item .edit-awardName {
@@ -200,13 +215,17 @@ h2.mission_time.not-start {
     margin: 0 8px;
 }
 
-.pop .img{
+.pop .img {
     height: 300px;
     margin-bottom: 16px;
 }
 
-.pop img{
+.pop img {
     object-fit: contain;
     width: -webkit-fill-available;
     height: -webkit-fill-available;
+}
+
+.form__input.award_name {
+    margin-bottom: 8px;
 }

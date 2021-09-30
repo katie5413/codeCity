@@ -129,7 +129,7 @@ h2 {
 }
 
 .tab .tab-content .tab-content-top .page-title::before {
-    content: '';
+    content: "";
     width: 8px;
     height: 24px;
     border-radius: 8px;
@@ -193,7 +193,12 @@ h2 {
     cursor: pointer;
 }
 
-.tab .tab-content .mission-board .mission-board-function .filter .filter-btn.active {
+.tab
+    .tab-content
+    .mission-board
+    .mission-board-function
+    .filter
+    .filter-btn.active {
     color: var(--primary-green);
     font-weight: bold;
 }
@@ -204,4 +209,16 @@ h2 {
     border-radius: 4px;
     background-color: var(--light-green);
     margin: auto 2px;
+}
+
+.setting-bottom #mark {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 8px;
+}
+
+.setting-bottom #markdownResult{
+    white-space: pre-line;
+    max-height: 150px;
+    overflow: scroll;
 }
