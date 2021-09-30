@@ -114,10 +114,10 @@ if (isset($_GET['missionID'])) {
     $end = strtotime($endTime);
     $now = time();
     $period = '';
-    if ($now <= $end) {
-        $period = 'start';
-    } else {
+    if ($now > $end && $end!=null) {
         $period = 'end';
+    } else {
+        $period = 'start';
     }
 
     $submitStatusClass = '';

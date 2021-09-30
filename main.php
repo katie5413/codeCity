@@ -300,10 +300,10 @@ if ($findStudentData->rowCount() >= 1) {
                             $now = time();
 
                             $period = '';
-                            if ($now <= $end) {
-                                $period = 'start';
-                            } else {
+                            if ($now > $end && $end!=null) {
                                 $period = 'end';
+                            } else {
+                                $period = 'start';
                             }
 
                             return $period;
