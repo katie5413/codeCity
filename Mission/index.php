@@ -114,7 +114,7 @@ if (isset($_GET['missionID'])) {
     $end = strtotime($endTime);
     $now = time();
     $period = '';
-    if ($now > $end && $end!=null) {
+    if ($now > $end && $end != null) {
         $period = 'end';
     } else {
         $period = 'start';
@@ -317,8 +317,10 @@ if (isset($_GET['missionID'])) {
                             if (!isset($homework['id'])) {
                                 echo '<button class="submit-homework-btn button-fill">繳交作業</button>';
                             } else {
-                                echo '<button class="edit-homework-btn button-hollow">編輯作業</button>';
-                                echo '<button class="delete-homework-btn button-pink">刪除作業</button>';
+                                if($submitStatusClass !='overtime'){
+                                    echo '<button class="edit-homework-btn button-hollow">編輯作業</button>';
+                                    echo '<button class="delete-homework-btn button-pink">刪除作業</button>';
+                                }
                             }
                         }
 
@@ -396,7 +398,7 @@ if (isset($_GET['missionID'])) {
                         ?>
 
                         <div class="functions">
-                            <button class="submit-msg-btn button-fill">留言</button>
+                            <button class="submit-msg-btn button-fill">新增作業說明</button>
                         </div>
 
                     </div>
@@ -423,24 +425,23 @@ if (isset($_GET['missionID'])) {
 
                 <div class="content">
                     <div class="mission">
-                        <div class="submit-top">
-                            <input type="file" name="upload_mission_img" id="upload_mission_img" accept=".jpg, .jpeg, .png, .svg" hidden />
-                            <label for="upload_mission_img">
-                                <div id="mission__img_area" class="img">
-                                    <img class="mission_submit" src="../src/img/3Dcity.svg" alt="mission_submit">
-                                </div>
-                            </label>
-
-                        </div>
                         <div class="submit-bottom">
                             <div class="form__input mission_link">
                                 <div class="title">連結</div>
                                 <input class="input group_at_least_one" type="text" name="submit_mission_link" placeholder="請輸入連結"></input>
                             </div>
+                            <div class="notice">
+                                需提交至少一個圖片或連結
+                            </div>
                         </div>
-                    </div>
-                    <div class="notice">
-                        需提交至少一個圖片或連結
+                        <div class="submit-top">
+                            <input type="file" name="upload_mission_img" id="upload_mission_img" accept=".jpg, .jpeg, .png, .svg" hidden />
+                            <label for="upload_mission_img">
+                                <div id="mission__img_area" class="img">
+                                    <img class="mission_submit" src="../src/img/icon/uploadImg.svg" alt="mission_submit">
+                                </div>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="buttons">
@@ -525,7 +526,7 @@ if (isset($_GET['missionID'])) {
                 <div class="top">
                     <div class="title">
                         <img class="header__icon" src="../src/img/icon/mission-dark.svg" alt="icon">
-                        <span>新增留言</span>
+                        <span>新增作業說明</span>
                     </div>
                     <div class="close">x</div>
                 </div>
@@ -533,7 +534,7 @@ if (isset($_GET['missionID'])) {
                     <div class="mission">
                         <div class="setting-bottom">
                             <div class="form__input msg_text">
-                                <div class="title">留言<span class="must__fill-label">必填</span></div>
+                                <div class="title">說明內容<span class="must__fill-label">必填</span></div>
                                 <textarea class="input" type="text" name="msg_text" placeholder="請輸入留言文字"></textarea>
                             </div>
                         </div>
@@ -558,7 +559,7 @@ if (isset($_GET['missionID'])) {
                 <div class="top">
                     <div class="title">
                         <img class="header__icon" src="../src/img/icon/mission-dark.svg" alt="icon">
-                        <span>編輯留言</span>
+                        <span>編輯作業說明</span>
                     </div>
                     <div class="close">x</div>
                 </div>
@@ -566,7 +567,7 @@ if (isset($_GET['missionID'])) {
                     <div class="mission">
                         <div class="setting-bottom">
                             <div class="form__input msg_text">
-                                <div class="title">留言<span class="must__fill-label">必填</span></div>
+                                <div class="title">說明內容<span class="must__fill-label">必填</span></div>
                                 <textarea class="input" type="text" id="msg_text_update" name="msg_text_update" placeholder="請輸入留言文字"></textarea>
                             </div>
                         </div>
@@ -591,13 +592,13 @@ if (isset($_GET['missionID'])) {
                 <div class="top">
                     <div class="title">
                         <img class="header__icon" src="../src/img/icon/trash.svg" alt="icon">
-                        <span>刪除留言</span>
+                        <span>刪除作業說明</span>
                     </div>
                     <div class="close">x</div>
                 </div>
                 <div class="content">
                     <div class="alert">
-                        確定要刪除留言嗎？
+                        確定要刪除作業說明嗎？
                     </div>
                 </div>
                 <div class="buttons">
