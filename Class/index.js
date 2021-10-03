@@ -19,6 +19,7 @@ $(document).ready(function () {
             search: '<img src="../src/img/icon/search.svg">',
             searchPlaceholder: "篩選",
         },
+        paging: false,
     });
 
     var studentTable = $("#studentTable").DataTable({
@@ -38,6 +39,7 @@ $(document).ready(function () {
             search: '<img src="../src/img/icon/search.svg">',
             searchPlaceholder: "篩選",
         },
+        paging: false,
     });
 
     var studentTable = $("#personTable").DataTable({
@@ -57,6 +59,7 @@ $(document).ready(function () {
             search: '<img src="../src/img/icon/search.svg">',
             searchPlaceholder: "篩選",
         },
+        paging: false,
     });
 
     sortIconPosition();
