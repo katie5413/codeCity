@@ -355,7 +355,7 @@ if ($findStudentData->rowCount() >= 1) {
                                     <input class="input input__must_fill" name="missionName" type="text" name="mission_title" placeholder="請輸入任務名稱" value="" />
                                 </div>
                                 <div class="form__input">
-                                    <div class="title">啟動區間<span class="must__fill-label">必填</span></div>
+                                    <div class="title">截止日期<span class="must__fill-label">必填</span></div>
                                     <input type="text" name="missionPeriod" class="input input__must_fill calendar" value="" autocomplete="off" />
                                 </div>
                             </div>

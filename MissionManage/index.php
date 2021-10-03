@@ -349,7 +349,7 @@ if (isset($_GET['missionID'])) {
                                 <input class="input input__must_fill" type="text" name="missionName_update" placeholder="請輸入任務名稱" value="<?php echo $missionData['name']; ?>" />
                             </div>
                             <div class="form__input">
-                                <div class="title">啟動區間<span class="must__fill-label">必填</span></div>
+                                <div class="title">截止日期<span class="must__fill-label">必填</span></div>
                                 <input type="text" name="missionPeriod_update" class="input input__must_fill calendar" value="<?php echo $endTime; ?>" autocomplete="off" />
                             </div>
                         </div>
