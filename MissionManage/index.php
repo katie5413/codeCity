@@ -265,8 +265,8 @@ if (isset($_GET['missionID'])) {
                                 </div>
                                 <div class="status-number">
                                     <?php
-                                    $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                    $findNotSubmitStudent->execute(array($_SESSION['missionID']));
+                                    $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name,classID from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
+                                    $findNotSubmitStudent->execute(array($_GET['classID'],$_SESSION['missionID']));
                                     $notSubmitSum = (int)0;
                                     while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                         $notSubmitSum = $notSubmitSum + 1;
@@ -277,8 +277,8 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div id="not-submitList" class="list-area">
                                 <?php
-                                $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                $findNotSubmitStudent->execute(array($_SESSION['missionID']));
+                                $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
+                                $findNotSubmitStudent->execute(array($_GET['classID'],$_SESSION['missionID']));
                                 while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                     if ($notSubmitStudentList['img'] == 1) {
                                         $notSubmitStudentList['img'] = '../src/img/3Dcity.svg';
