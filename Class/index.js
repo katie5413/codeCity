@@ -40,11 +40,13 @@ $(document).ready(function () {
             searchPlaceholder: "篩選",
         },
         paging: false,
+        scrollY: "calc(100vh - 200px)",
+        scrollCollapse: true,
     });
 
     var studentTable = $("#personTable").DataTable({
         scrollResize: true,
-        scrollY: "calc(100vh - 150px)",
+        scrollY: "calc(100vh - 200px)",
         scrollCollapse: true,
         scrollX: false,
         language: {
