@@ -42,7 +42,7 @@ if (!isset($_SESSION['user']['email'])) {
     <div id="content">
         <div class="side-menu--container">
             <div class="side-menu">
-                <img class="logo" src="https://picsum.photos/400/300" alt="logo">
+                <img class="logo" src="../src/img/3Dcity.svg" alt="logo">
                 <div class="user">
                     <div class="avatar">
                         <?php

@@ -25,7 +25,7 @@ include "pdoInc.php";
         <div class="left">
             <div class="tab">
                 <div class="logo">
-                    <img src="https://picsum.photos/400/300" />
+                    <img src="src/img/3Dcity.svg" />
                 </div>
                 <form class="form" action="src/action/login.php" method="post">
                     <div class="form__input account">

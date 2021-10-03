@@ -169,7 +169,7 @@ if (isset($_GET['missionID'])) {
     <div id="content">
         <div class="side-menu--container">
             <div class="side-menu">
-                <img class="logo" src="https://picsum.photos/400/300" alt="logo">
+                <img class="logo" src="../src/img/3Dcity.svg" alt="logo">
                 <div class="user">
                     <div class="avatar">
                         <?php
@@ -541,7 +541,7 @@ if (isset($_GET['missionID'])) {
                             <input type="file" name="upload_msg_img" id="upload_msg_img" accept=".jpg, .jpeg, .png, .svg" hidden />
                             <label for="upload_msg_img">
                                 <div id="msg__img_area" class="img">
-                                    <img class="msg_img" src="../src/img/icon/image-dark.svg" alt="msg">
+                                    <img class="msg_img" src="../src/img/icon/uploadImg.svg" alt="msg">
                                 </div>
                             </label>
                         </div>
@@ -574,7 +574,7 @@ if (isset($_GET['missionID'])) {
                             <input type="file" name="upload_msg_img_update" id="upload_msg_img_update" accept=".jpg, .jpeg, .png, .svg" hidden />
                             <label for="upload_msg_img_update">
                                 <div id="msg__img_area_update" class="img">
-                                    <img class="msg_img" src="../src/img/icon/image-dark.svg" alt="msg">
+                                    <img class="msg_img" src="../src/img/icon/uploadImg.svg" alt="msg">
                                 </div>
                             </label>
                         </div>

@@ -8,7 +8,7 @@ if (isset($_GET['selectID'])) {
     if ($msgItem = $findMsg->fetch(PDO::FETCH_ASSOC)) {
         $msgData = array();
         if ($msgItem['img'] === null) {
-            $submitImg = "../src/img/icon/image-dark.svg";
+            $submitImg = "../src/img/icon/uploadImg.svg";
         } else {
             $submitImg = $msgItem['img'];
         }
