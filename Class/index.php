@@ -341,6 +341,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                 ?>
                             </div>
                         </div>
+                        <div class="notice">註：一次僅能一筆</div>
                     </div>
                 </div>
                 <div class="buttons">
