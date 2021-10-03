@@ -226,7 +226,10 @@ if ($findStudentData->rowCount() >= 1) {
                         } elseif ($_SESSION['user']['identity'] === 'student') {
                             $sth = $dbh->prepare('SELECT * FROM mission WHERE classID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['classID']));
+                            $missionIndex=0;
+
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                $missionIndex++;
                                 $missionID = $row['id'];
                                 $missionName = $row['name'];
                                 $award = '<img src="src/img/3Dcity.svg" />';
@@ -283,7 +286,7 @@ if ($findStudentData->rowCount() >= 1) {
                                 <div class="mission-card-content">
                                     <div class="top">
                                         <h2 class="mission-card-title">
-                                        ' . $missionName . '
+                                        #' . $missionIndex .' '.$missionName . '
                                         </h2>
                                         <div class="mission-card-score">
                                             ' . $homeworkStatusText . '
