@@ -183,10 +183,12 @@ if ($findStudentData->rowCount() >= 1) {
                         if ($_SESSION['user']['identity'] === 'teacher') {
                             $sth = $dbh->prepare('SELECT * FROM mission WHERE teacherID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['id']));
+                            $missionIndex=0;
 
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                 $missionID = $row['id'];
                                 $missionName = $row['name'];
+                                $missionIndex++;
 
                                 $endTime = substr($row['endTime'], 0, -3);
                                 $classID = $row['classID'];
@@ -213,7 +215,7 @@ if ($findStudentData->rowCount() >= 1) {
                                 <div class="mission-card-content">
                                     <div class="top">
                                         <h2 class="mission-card-title">
-                                        ' . $missionName . '
+                                        #' . $missionIndex .' '.$missionName . '
                                         </h2>
                                     </div>
                                     <div class="mission-card-time">' . $endTime . '</div>
