@@ -176,7 +176,8 @@ h2 {
     color: var(--function) !important;
 }
 
-.tab .tab-content .tab-content-top .addStudent-btn {
+.tab .tab-content .tab-content-top .addStudent-btn,
+.tab .tab-content .tab-content-top .addClass-btn {
     margin-left: auto;
 }
 
@@ -288,7 +289,6 @@ table.dataTable thead .sorting_desc_disabled {
 .table__container.person td .function {
     color: var(--function);
 }
-
 
 .table__container.person thead th:nth-child(3),
 .table__container.person tbody td:nth-child(3),

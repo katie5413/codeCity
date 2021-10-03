@@ -17,7 +17,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
 <html>
 
 <head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <script src="../src/library/jquery/jquery.min.js"></script>
@@ -81,7 +81,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         </a>
                     </li>
                     -->
-                    
+
                     <?php
                     if ($_SESSION['user']['identity'] !== 'teacher') {
                         echo '<li>
@@ -141,6 +141,9 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                     <h1 class="page-title">
                         <a href="index.php">班級列表</a>
                     </h1>
+                    <?php if ($_GET['classID'] == null && $_GET['studentID'] == null) {
+                        echo '<form action="../src/action/addClass.php" class="addClass-btn"><button class="button-hollow">新增班級</button></form>';
+                    } ?>
                     <?php if (isset($_GET['classID'])) {
                         $getClassName = $dbh->prepare('SELECT name FROM class WHERE id =?');
                         $getClassName->execute(array($_GET['classID']));
