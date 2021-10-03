@@ -223,9 +223,10 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div id="submitList" class="list-area">
                                 <?php
-                                $findSubmitStudent = $dbh->prepare('SELECT * FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? ORDER by homework.score');
+                                $findSubmitStudent = $dbh->prepare('SELECT student.id, student.img,student.name,homework.score,homework.studentID,homework.missionID FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? ORDER by homework.score');
                                 $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
                                 while ($submitStudentList = $findSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
+
                                     $submitStudentList['score'];
                                     $homeworkStatus = (int)$submitStudentList['score'];
 
