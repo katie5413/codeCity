@@ -213,12 +213,5 @@ h2 {
 
 .setting-bottom #mark {
     display: grid;
-    grid-template-columns: 50% 50%;
-    gap: 8px;
-}
-
-.setting-bottom #markdownResult{
-    white-space: pre-line;
-    max-height: 150px;
-    overflow: scroll;
+    grid-template-columns: 100%;
 }

@@ -34,7 +34,7 @@ if (isset($_GET['missionID'])) {
         $end = strtotime($endTime);
         $now = time();
         $period = '';
-        if ($now > $end && $end!=null) {
+        if ($now > $end && $end != null) {
             $period = 'end';
         } else {
             $period = 'start';
@@ -66,15 +66,19 @@ if (isset($_GET['missionID'])) {
     <script src="../src/component/dropBox/index.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/common/common.css">
+    <script src="../src/library/datatables/datatables.min.js"></script>
+    <script src="../src/library/datatables/dataTables.scrollResize.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/library/daterangepicker/daterangepicker.css" />
     <link rel="stylesheet" type="text/css" href="../src/component/missionCard/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/sideMenu/index.css">
-    <link rel="stylesheet" type="text/css" href="../src/component/pop/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/library/datatables/datatables.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/pop/index.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" type="text/css" href="../src/component/submitCard/index.css?">
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務管理</title>
 </head>
@@ -175,10 +179,11 @@ if (isset($_GET['missionID'])) {
             <div class="tab-content">
                 <div class="tab-content-top">
                     <h1 class="page-title">
-                        <?php echo $missionData['name']; ?>
+                        <a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" /><?php echo $missionData['name']; ?>
                     </h1>
                     <div class="functions">
                         <button class="edit-mission-btn button-fill">編輯</button>
+                        <button class="add-subMission-btn button-fill">新增子任務</button>
                     </div>
                 </div>
                 <div class="mission-session">
@@ -194,11 +199,63 @@ if (isset($_GET['missionID'])) {
                         <div class="mission-card-content">
                             <div class="top">
                                 <h2 class="mission-card-title">
-                                    任務說明
+                                    主題說明
                                 </h2>
                             </div>
                             <div class="mission-card-detail"><?php echo $missionData['detail']; ?></div>
+                            <br>
+                            <div class="top">
+                                <h2 class="mission-card-title">
+                                    任務說明
+                                </h2>
+                            </div>
+                            <div class="table__container">
+                                <table id="subMissionTable" class="stripe" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>任務標題</th>
+                                            <th>任務說明</th>
+                                            <th style="text-align:center">編輯/刪除</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+
+                                        // 所有子任務分數佔比總和
+                                        /*
+                                        $findMissionGoalPercentSum = $dbh->prepare('SELECT SUM(percent) FROM missionGoal WHERE missionID=?');
+                                        $findMissionGoalPercentSum->execute(array($_SESSION['missionID']));
+                                        $missionGoalDataPercentSum = $findMissionGoalPercentSum->fetch(PDO::FETCH_ASSOC);
+                                        */
+
+                                        // 單個任務
+                                        $findMissionGoal = $dbh->prepare('SELECT * FROM missionGoal WHERE missionID=?');
+                                        $findMissionGoal->execute(array($_SESSION['missionID']));
+                                        $index = 0;
+
+                                        while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
+                                            $index++;
+                                            echo '<tr>
+                                            <td>' . $index . '</td>
+                                            <td>
+                                            ' . $missionGoalData['title'] . '
+                                            </td>
+                                            <td>
+                                            ' . $missionGoalData['content'] . '
+                                            </td>
+                                            <td>
+                                            <div class="function"><img class="icon editSubMission edit-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteSubMission delete-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>
+                                            </td>
+                                        </tr>';
+                                        }
+                                        ?>
+
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+
                     </div>
 
                     <div class="submit-status-board">
@@ -267,7 +324,7 @@ if (isset($_GET['missionID'])) {
                                 <div class="status-number">
                                     <?php
                                     $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name,classID from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                    $findNotSubmitStudent->execute(array($_GET['classID'],$_SESSION['missionID']));
+                                    $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
                                     $notSubmitSum = (int)0;
                                     while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                         $notSubmitSum = $notSubmitSum + 1;
@@ -279,7 +336,7 @@ if (isset($_GET['missionID'])) {
                             <div id="not-submitList" class="list-area">
                                 <?php
                                 $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                $findNotSubmitStudent->execute(array($_GET['classID'],$_SESSION['missionID']));
+                                $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
                                 while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                     if ($notSubmitStudentList['img'] == 1) {
                                         $notSubmitStudentList['img'] = '../src/img/3Dcity.svg';
@@ -309,7 +366,7 @@ if (isset($_GET['missionID'])) {
             <div class="top">
                 <div class="title">
                     <img class="header__icon" src="../src/img/icon/mission-dark.svg" alt="icon">
-                    <span>編輯任務</span>
+                    <span>編輯主題</span>
                 </div>
                 <div class="close">x</div>
             </div>
@@ -320,70 +377,138 @@ if (isset($_GET['missionID'])) {
                             <img class="mission_building" src="<?php echo $award; ?>" alt="mission_building">
                         </div>
                         <div class="mission_detail">
-                            <div class="form__input mission_title">
-                                <div class="title">任務獎勵</div>
-                                <div class="drop__container" id="selectAwardArea">
+                            <div class="inline">
+                                <div class="form__input mission_title">
+                                    <div class="title">主題獎勵</div>
+                                    <div class="drop__container" id="selectAwardArea">
 
-                                    <input id="selectAward" name="imgName_update" class="select-selected" type="text" placeholder="請選擇" autocomplete="off" value="<?php
-                                                                                                                                                                    $sth = $dbh->prepare('SELECT name FROM award where id=?');
-                                                                                                                                                                    $sth->execute(array($missionData['awardID']));
-                                                                                                                                                                    while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                                                                                                                                                                        echo $row['name'];
-                                                                                                                                                                    }
-                                                                                                                                                                    ?>" />
-                                    <img src="../src/img/icon/right-dark.svg" alt="icon" class="icon">
-                                    <div class="line"></div>
-                                    <div class="select-items">
-                                        <?php
-                                        $sth = $dbh->prepare('SELECT * FROM award');
-                                        $sth->execute();
-                                        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
-                                            echo '<div class="option" value=' . $row['id'] . '>' . $row['name'] . '</div>';
-                                        }
-                                        ?>
+                                        <input id="selectAward" name="imgName_update" class="select-selected" type="text" placeholder="請選擇" autocomplete="off" value="<?php
+                                                                                                                                                                        $sth = $dbh->prepare('SELECT name FROM award where id=?');
+                                                                                                                                                                        $sth->execute(array($missionData['awardID']));
+                                                                                                                                                                        while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                                                                                                                                                            echo $row['name'];
+                                                                                                                                                                        }
+                                                                                                                                                                        ?>" />
+                                        <img src="../src/img/icon/right-dark.svg" alt="icon" class="icon">
+                                        <div class="line"></div>
+                                        <div class="select-items">
+                                            <?php
+                                            $sth = $dbh->prepare('SELECT * FROM award');
+                                            $sth->execute();
+                                            while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
+                                                echo '<div class="option" value=' . $row['id'] . '>' . $row['name'] . '</div>';
+                                            }
+                                            ?>
+                                        </div>
                                     </div>
                                 </div>
+                                <div class="form__input mission_title">
+                                    <div class="title">主題名稱<span class="must__fill-label">必填</span></div>
+                                    <input class="input input__must_fill" type="text" name="missionName_update" placeholder="請輸入主題名稱" value="<?php echo $missionData['name']; ?>" />
+                                </div>
+                                <div class="form__input mission_end">
+                                    <div class="title">截止日期<span class="must__fill-label">必填</span></div>
+                                    <input type="text" name="missionPeriod_update" class="input input__must_fill calendar" value="<?php echo $endTime; ?>" autocomplete="off" />
+                                </div>
                             </div>
-                            <div class="form__input mission_title">
-                                <div class="title">任務名稱<span class="must__fill-label">必填</span></div>
-                                <input class="input input__must_fill" type="text" name="missionName_update" placeholder="請輸入任務名稱" value="<?php echo $missionData['name']; ?>" />
-                            </div>
-                            <div class="form__input">
-                                <div class="title">截止日期<span class="must__fill-label">必填</span></div>
-                                <input type="text" name="missionPeriod_update" class="input input__must_fill calendar" value="<?php echo $endTime; ?>" autocomplete="off" />
+
+                            <div class="form__input mission_info">
+                                <div class="title">主題說明<span class="must__fill-label">必填</span></div>
+                                <div id="mark">
+                                    <textarea id="editor" class="input input__must_fill" type="text" name="missionDetail_update" placeholder="請輸入主題說明"><?php echo $missionData['detail']; ?></textarea>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div class="setting-bottom">
-                        <div class="form__input mission_info">
+
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="submit" class="edit-mission__confirm button button-fill">確定</button>
+            </div>
+        </form>
+    </div>
+    <div id="editSubMission" class="pop close">
+        <form class="inner" action="../src/action/updateSubMission.php" method="post">
+            <div class="top">
+                <div class="title">
+                    <img class="header__icon" src="../src/img/icon/mission-dark.svg" alt="icon">
+                    <span>編輯任務</span>
+                </div>
+                <div class="close">x</div>
+            </div>
+            <div class="content">
+                <div class="mission">
+                    <div class="mission_detail">
+                        <div class="form__input missionGoal_title">
+                            <div class="title">任務標題<span class="must__fill-label">必填</span></div>
+                            <input class="input input__must_fill" type="text" name="missionGoal_title_update" id="missionGoal_title_update" placeholder="請輸入任務標題" value="<?php echo $missionGoalData['title']; ?>" />
+                        </div>
+                        <div class="form__input missionGoal_content">
                             <div class="title">任務說明<span class="must__fill-label">必填</span></div>
-                            <div id="mark">
-                                <textarea id="editor" class="input input__must_fill" type="text" name="missionDetail_update" placeholder="請輸入任務說明" onkeyup="mark()"><?php echo $missionData['detail']; ?></textarea>
-                                <div id="markdownResult" class="codeCity-markdown border">
-                                </div>
-                            </div>
+                            <input class="input input__must_fill" type="text" name="missionGoal_content_update" id="missionGoal_content_update" placeholder="請輸入任務說明" value="<?php echo $missionGoalData['content']; ?>" />
                         </div>
                     </div>
                 </div>
             </div>
             <div class="buttons">
+                <button type="submit" class="edit-subMission__confirm button button-fill">確定</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="addSubMission" class="pop close">
+        <form class="inner" action="../src/action/addSubMission.php" method="post">
+            <div class="top">
+                <div class="title">
+                    <img class="header__icon" src="../src/img/icon/mission-dark.svg" alt="icon">
+                    <span>新增子任務</span>
+                </div>
+                <div class="close">x</div>
+            </div>
+            <div class="content">
+                <div class="mission">
+                    <div class="mission_detail">
+                        <div class="form__input missionGoal_title">
+                            <div class="title">子任務標題<span class="must__fill-label">必填</span></div>
+                            <input class="input input__must_fill" type="text" name="missionGoal_title" id="missionGoal_title" placeholder="請輸入子任務標題" value="" />
+                        </div>
+                        <div class="form__input missionGoal_content">
+                            <div class="title">子任務說明<span class="must__fill-label">必填</span></div>
+                            <input class="input input__must_fill" type="text" name="missionGoal_content" id="missionGoal_content" placeholder="請輸入子任務說明" value="" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="buttons">
+                <button type="submit" class="add-subMission__confirm button button-fill">確定</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="deleteSubMission" class="pop close">
+        <form class="inner" action="../src/action/deleteSubMission.php" method="post" enctype="multipart/form-data">
+            <div class="top">
+                <div class="title">
+                    <img class="header__icon" src="../src/img/icon/trash.svg" alt="icon">
+                    <span>刪除任務說明</span>
+                </div>
+                <div class="close">x</div>
+            </div>
+            <div class="content">
+                <div class="alert">
+                    確定要刪除子任務說明嗎？
+                </div>
+            </div>
+            <div class="buttons">
                 <button class="cancel button button-pink">取消</button>
-                <button type="submit" class="edit-mission__confirm button button-fill">確定</button>
+                <button type="submit" class="delete-subMission__confirm button button-fill">確定</button>
             </div>
         </form>
     </div>
     <!-- content end-->
 </body>
 <script>
-    function mark() {
-        $('#markdownResult').remove();
-        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
-    }
-
-    const markResult = marked($('.mission-submit-area .mission-card-detail').html());
-    $('.mission-submit-area .mission-card-detail').remove();
-    $('.mission-submit-area .mission-card-content').append(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
-
     // date picker
     moment.locale('zh-TW');
     $('.calendar').daterangepicker({

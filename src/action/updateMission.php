@@ -23,8 +23,10 @@ if ($_SESSION['user']['identity'] === 'teacher' && isset($_SESSION['user']['id']
         }
     } else {
 
+        //更新主題內容
         $updateMission = $dbh->prepare('UPDATE mission SET name = ?, endTime = ?, detail = ? WHERE id=? AND teacherID=?');
         $updateMission->execute(array($_POST['missionName_update'], $endTime, $_POST['missionDetail_update'], $_SESSION['missionID'], $_SESSION['user']['id']));
+        
         echo '<meta http-equiv="refresh" content="0; url=../../MissionManage/index.php?missionID=' . $_SESSION['missionID'] . '&classID=' . $_SESSION['classID'] . '">';
     }
 

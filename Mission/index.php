@@ -151,6 +151,8 @@ if (isset($_GET['missionID'])) {
     <script src="../src/library/daterangepicker/daterangepicker.min.js"></script>
     <script src="../src/common/common.js"></script>
     <script src="../src/component/dropBox/index.js"></script>
+    <script src="../src/library/datatables/datatables.min.js"></script>
+    <script src="../src/library/datatables/dataTables.scrollResize.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/common/common.css">
     <link rel="stylesheet" type="text/css" href="../src/library/daterangepicker/daterangepicker.css" />
@@ -161,6 +163,8 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/library/datatables/datatables.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務</title>
 </head>
@@ -281,11 +285,62 @@ if (isset($_GET['missionID'])) {
                         <div class="mission-card-content">
                             <div class="top">
                                 <h2 class="mission-card-title">
-                                    任務說明
+                                    主題說明
                                 </h2>
                             </div>
                             <div class="mission-card-detail"><?php echo $missionData['detail']; ?></div>
+                            <br>
+
+                            <div class="top">
+                                <h2 class="mission-card-title">
+                                    任務說明
+                                </h2>
+                            </div>
+
+                            <div class="table__container">
+                                <table id="subMissionTable2" class="stripe" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>任務標題</th>
+                                            <th>任務說明</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+
+                                        // 所有子任務分數佔比總和
+                                        /*
+                                        $findMissionGoalPercentSum = $dbh->prepare('SELECT SUM(percent) FROM missionGoal WHERE missionID=?');
+                                        $findMissionGoalPercentSum->execute(array($_SESSION['missionID']));
+                                        $missionGoalDataPercentSum = $findMissionGoalPercentSum->fetch(PDO::FETCH_ASSOC);
+                                        */
+
+                                        // 單個任務
+                                        $findMissionGoal = $dbh->prepare('SELECT * FROM missionGoal WHERE missionID=?');
+                                        $findMissionGoal->execute(array($_SESSION['missionID']));
+                                        $index = 0;
+
+                                        while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
+                                            $index++;
+                                            echo '<tr>
+                                            <td>' . $index . '</td>
+                                            <td>
+                                            ' . $missionGoalData['title'] . '
+                                            </td>
+                                            <td>
+                                            ' . $missionGoalData['content'] . '
+                                            </td>
+                                        </tr>';
+                                        }
+                                        ?>
+
+                                    </tbody>
+                                </table>
+                            </div>
+
                         </div>
+
                     </div>
 
                     <?php
@@ -317,7 +372,7 @@ if (isset($_GET['missionID'])) {
                             if (!isset($homework['id'])) {
                                 echo '<button class="submit-homework-btn button-fill">繳交作業</button>';
                             } else {
-                                if($submitStatusClass !='overtime'){
+                                if ($submitStatusClass != 'overtime') {
                                     echo '<button class="edit-homework-btn button-hollow">編輯作業</button>';
                                     echo '<button class="delete-homework-btn button-pink">刪除作業</button>';
                                 }
@@ -612,14 +667,7 @@ if (isset($_GET['missionID'])) {
     <!-- content end-->
 </body>
 <script>
-    function mark() {
-        $('#markdownResult').remove();
-        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
-    }
 
-    const markResult = marked($('.mission-submit-area .mission-card-detail').html());
-    $('.mission-submit-area .mission-card-detail').remove();
-    $('.mission-submit-area .mission-card-content').append(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
 </script>
 <script src="../src/library/jquery.min.js"></script>
 <script src="../src/library/datatables/datatables.min.js"></script>
@@ -628,6 +676,6 @@ if (isset($_GET['missionID'])) {
 <script src="../src/component/pop/index.js"></script>
 <script src="../src/component/sideMenu/index.js"></script>
 <script src="../src/common/common.js"></script>
-<script src="index.js"></script>
+<script src="index.js?v=<?php echo time(); ?>"></script>
 
 </html>

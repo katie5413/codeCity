@@ -152,7 +152,7 @@ if ($findStudentData->rowCount() >= 1) {
             <div class="tab-content">
                 <div class="tab-content-top">
                     <h1 class="page-title">
-                        任務列表
+                        主題列表
                     </h1>
                     <?php
                     if ($_SESSION['user']['identity'] === 'teacher') {
@@ -325,7 +325,7 @@ if ($findStudentData->rowCount() >= 1) {
                 <div class="top">
                     <div class="title">
                         <img class="header__icon" src="src/img/icon/mission-dark.svg" alt="icon">
-                        <span>新增任務</span>
+                        <span>新增主題</span>
                     </div>
                     <div class="close">x</div>
                 </div>
@@ -337,7 +337,7 @@ if ($findStudentData->rowCount() >= 1) {
                             </div>
                             <div class="mission_detail">
                                 <div class="form__input mission_title">
-                                    <div class="title">任務獎勵</div>
+                                    <div class="title">主題獎勵</div>
                                     <div class="drop__container" id="selectAwardArea">
                                         <input id="selectAward" name="imgName" class="select-selected" type="text" placeholder="請選擇" autocomplete="off" value="" />
                                         <img src="src/img/icon/right-dark.svg" alt="icon" class="icon">
@@ -354,8 +354,8 @@ if ($findStudentData->rowCount() >= 1) {
                                     </div>
                                 </div>
                                 <div class="form__input mission_title">
-                                    <div class="title">任務名稱<span class="must__fill-label">必填</span></div>
-                                    <input class="input input__must_fill" name="missionName" type="text" name="mission_title" placeholder="請輸入任務名稱" value="" />
+                                    <div class="title">主題名稱<span class="must__fill-label">必填</span></div>
+                                    <input class="input input__must_fill" name="missionName" type="text" name="mission_title" placeholder="請輸入主題名稱" value="" />
                                 </div>
                                 <div class="form__input">
                                     <div class="title">截止日期<span class="must__fill-label">必填</span></div>
@@ -365,12 +365,9 @@ if ($findStudentData->rowCount() >= 1) {
                         </div>
                         <div class="setting-bottom">
                             <div class="form__input mission_info">
-                                <div class="title">任務說明<span class="must__fill-label">必填</span></div>
+                                <div class="title">主題說明<span class="must__fill-label">必填</span></div>
                                 <div id="mark">
-                                    <textarea id="editor" class="input input__must_fill" name="missionDetail" type="text" name="mission_info" placeholder="請輸入任務說明" onkeyup="mark()"></textarea>
-                                    <div id="markdownResult" class="codeCity-markdown border">
-                                        請輸入任務說明（支援 Markdown）
-                                    </div>
+                                    <textarea id="editor" class="input input__must_fill" name="missionDetail" type="text" name="mission_info" placeholder="請輸入主題說明" onkeyup="mark()"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -386,15 +383,6 @@ if ($findStudentData->rowCount() >= 1) {
     <!-- content end-->
 </body>
 <script>
-    const initText = '### H3\n#### H4\n一般文字\n★\n★★\n★★★\n'
-    $('#editor').append(initText);
-    $('#markdownResult').remove();
-    $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked(initText)}</div>`);
-
-    function mark() {
-        $('#markdownResult').remove();
-        $('#mark').append(`<div id="markdownResult" class="codeCity-markdown border">${marked($('#editor').val())}</div>`);
-    }
     // 換圖片
     $('#selectAwardArea .select-items .option').on('click', function() {
         var selectAwardID = $(this).attr('value');

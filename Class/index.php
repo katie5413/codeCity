@@ -188,7 +188,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     <th>#</th>
                                     <th>班級名稱</th>
                                     <th>人數</th>
-                                    <th>任務總數</th>
+                                    <th>主題總數</th>
                                     <th>查看</th>
                                 </tr>
                             </thead>
@@ -255,7 +255,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>任務名稱</th>
+                                    <th>主題名稱</th>
                                     <th>截止時間</th>
                                     <th>作業狀態</th>
                                     <th>學生留言數</th>

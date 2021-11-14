@@ -76,6 +76,10 @@ select::-ms-expand {
     width: 100%;
 }
 
+.tabs .tabs__content {
+    margin-right: 16px;
+}
+
 .tabs .tabs__content .top .form__input:last-child {
     margin-right: 0;
 }

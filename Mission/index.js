@@ -199,3 +199,64 @@ $(".delete-msg-btn").click(function () {
         },
     });
 });
+
+
+$(document).ready(function () {
+    $.fn.dataTable.ext.search.pop();
+
+    // table library init
+    var subMission = $("#subMissionTable2").DataTable({
+        scrollResize: true,
+        scrollY: "calc(100vh - 150px)",
+        scrollCollapse: true,
+        scrollX: false,
+        searching: false,
+        language: {
+            lengthMenu: "每頁顯示 _MENU_ 筆",
+            zeroRecords: "沒有資料",
+            info: "",
+            infoEmpty: "沒有資料",
+            paginate: {
+                next: '<img src="../src/img/icon/right-dark.svg">',
+                previous: '<img src="../src/img/icon/left-dark.svg">',
+            },
+            search: '<img src="../src/img/icon/search.svg">',
+            searchPlaceholder: "篩選",
+        },
+        columnDefs: [
+            //给第一列指定宽度为表格整个宽度的20%
+            { width: "40%", targets: 1 },
+            { width: "40%", targets: 2 },
+        ],
+        paging: false,
+    });
+
+    sortIconPosition();
+
+    // change position of sort icon at table's header
+    function sortIconPosition() {
+        $(
+            ".table__container .dataTables_wrapper .dataTables_scroll thead th"
+        ).each(function () {
+            var xPos;
+            if ($(this).css("text-align") == "center") {
+                xPos =
+                    $(this).width() / 2 +
+                    ($(this).text().split("").length / 2) * 14 +
+                    8;
+            } else {
+                xPos = $(this).text().split("").length * 14 + 8;
+            }
+            $(this).css("background-position-x", xPos + "px");
+            $(this).css(
+                "background-position-y",
+                $(this).height() / 2 + 4 + "px"
+            );
+        });
+    }
+
+    $(window).resize(function () {
+        sortIconPosition();
+    });
+});
+
