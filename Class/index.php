@@ -258,6 +258,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     <th>主題名稱</th>
                                     <th>截止時間</th>
                                     <th>作業狀態</th>
+                                    <th>未繳交</th>
+                                    <th>未評分</th>
                                     <th>學生留言數</th>
                                     <th>查看</th>
                                 </tr>
@@ -270,7 +272,22 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                 while ($missionData = $findMission->fetch(PDO::FETCH_ASSOC)) {
                                     $index++;
 
-                                    $findHomework = $dbh->prepare('SELECT * FROM homework WHERE missionID =? and studentID = ?');
+                                    $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+                                    $findMissionGoalCount->execute(array($missionData['id']));
+                                    $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+
+                                    // 該學生繳交作業總數與分數平均
+                                    $findHomeworkCountAVG = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                    $findHomeworkCountAVG->execute(array($_GET['studentID'], $missionData['id']));
+                                    $homeworkCountAVG = $findHomeworkCountAVG->fetch(PDO::FETCH_ASSOC);
+
+                                    // 該學生繳交作業但未被評分的數量
+                                    $findWaitToScore  = $dbh->prepare('SELECT Count(id) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL and score=? ');
+                                    $findWaitToScore->execute(array($_GET['studentID'], $missionData['id'], 0));
+                                    $homeworkWaitToScore = $findWaitToScore->fetch(PDO::FETCH_ASSOC);
+
+                                    // 列出該生所有的作業
+                                    $findHomework = $dbh->prepare('SELECT * FROM homework WHERE missionID =? and studentID = ? and subMissionID IS NOT NULL');
                                     $findHomework->execute(array($missionData['id'], $_GET['studentID']));
 
                                     $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID =? and studentID = ? and ownerID=? and isTeacher=?');
@@ -282,7 +299,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     }
 
                                     if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
-                                        $homeworkStatus = (int)$homework['score'];
+                                        $homeworkStatus = ceil($homeworkCountAVG['AVG(score)']);
 
                                         if ($homeworkStatus === 0) {
                                             $homeworkStatusText = '<span class="function">待評分</span>';
@@ -295,9 +312,9 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                             $homeworkStatusText = $status;
                                         }
 
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $missionGoalDataCount['Count(id)'] - $homeworkCountAVG['Count(id)'] . '</td><td>' . $homeworkWaitToScore['Count(id)'] . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                     } else {
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td><span class="alert">未繳交</span></td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td><span class="alert">未繳交</span></td><td>' . $missionGoalDataCount['Count(id)'] - $homeworkCountAVG['Count(id)'] . '</td><td>' . $homeworkWaitToScore['Count(id)'] . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                     }
                                 }
                                 ?>

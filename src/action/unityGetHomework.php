@@ -3,14 +3,14 @@ session_start();
 include('../../pdoInc.php');
 
 // 列出所有作業的 任務 ID 、 學生 ID 、分數
-$sth = $dbh->prepare('SELECT missionID, studentID, score FROM homework');
+$sth = $dbh->prepare('SELECT missionID, studentID, score FROM homework where subMissionID IS NOT NULL');
 $sth->execute();
 
 if ($sth->rowCount() > 0) {
     while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
         
         // 找出每個主題作業的子任務作業
-        $findSub = $dbh->prepare('SELECT AVG(score) FROM homework WHERE missionID=? and studentID=?');
+        $findSub = $dbh->prepare('SELECT AVG(score) FROM homework WHERE missionID=? and studentID=?  and subMissionID IS NOT NULL');
         $findSub->execute(array($row["missionID"],$row["studentID"]));
         $subScore = $findSub->fetch(PDO::FETCH_ASSOC);
         $homeworkScore = ceil($subScore['AVG(score)']);
