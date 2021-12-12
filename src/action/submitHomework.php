@@ -32,11 +32,11 @@ if (isset($_FILES["upload_mission_img"]["name"]) || isset($_POST['submit_mission
     }
 
     if ($submitLink != null || $submitImg != null) {
-        $sth = $dbh->prepare('INSERT INTO homework (img, imgType, imgLink,studentID, missionID) VALUES (?, ?, ?, ?, ?)');
-        $sth->execute(array($submitImg, $submitImgType, $submitLink, $_SESSION['user']['id'], $_SESSION['missionID']));
+        $sth = $dbh->prepare('INSERT INTO homework (img, imgType, imgLink,studentID, missionID, subMissionID) VALUES (?, ?, ?, ?, ?,?)');
+        $sth->execute(array($submitImg, $submitImgType, $submitLink, $_SESSION['user']['id'], $_SESSION['missionID'], $_SESSION['subMissionID']));
     }
 
-    echo '<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">';
+    echo '<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '">';
 } else {
-    die('<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '">');
+    die('<meta http-equiv="refresh" content="0; url=../../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '">');
 }

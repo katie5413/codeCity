@@ -140,6 +140,10 @@ h2.mission_time.not-start {
     align-items: center;
 }
 
+.tab .tab-content .tab-content-top .page-title .link {
+    color: var(--function) !important;
+}
+
 .tab .tab-content .tab-content-top .page-title::before {
     content: "";
     width: 8px;
@@ -219,7 +223,7 @@ h2.mission_time.not-start {
     color: var(--secondary-green);
 }
 
-.tab .tab-content .mission-submit-area .submit-time .overtime{
+.tab .tab-content .mission-submit-area .submit-time .overtime {
     color: var(--alert);
 }
 
@@ -272,20 +276,30 @@ h2.mission_time.not-start {
     gap: 20px;
 }
 
+.table__container .score {
+    width: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
 
-.table__container td, th{
+.table__container .score .star {
+    width: 25px;
+}
+
+.table__container td,
+th {
     font-size: 14px;
 }
 
 .table__container thead th:nth-child(1),
-.table__container tbody td:nth-child(1)
-{
+.table__container tbody td:nth-child(1) {
     width: 20px;
 }
 
 .table__container thead th:nth-child(2),
-.table__container tbody td:nth-child(2)
-{
+.table__container tbody td:nth-child(2) {
     width: 50px;
 }
 

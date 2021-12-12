@@ -9,13 +9,13 @@ if (!isset($_SESSION['user']['email'])) {
 
 if (isset($_GET['missionID'])) {
     $_SESSION['missionID'] = $_GET['missionID'];
+    $_SESSION['subMissionID'] = $_GET['subMissionID'];
 
     // 登入身份為學生
     if ($_SESSION['user']['identity'] === 'student') {
         $findMissionData = $dbh->prepare('SELECT * FROM mission WHERE id = ? and classID=?');
         $findMissionData->execute(array($_SESSION['missionID'], $_SESSION['user']['classID']));
         $missionData = $findMissionData->fetch(PDO::FETCH_ASSOC);
-
         if ($findMissionData->rowCount() < 1) {
             // 沒有這個任務或非本班學生
             die('<meta http-equiv="refresh" content="0; url=../main.php">');
@@ -25,24 +25,58 @@ if (isset($_GET['missionID'])) {
         $_SESSION['homeworkOwner'] = $_SESSION['user']['id']; // 目前學生只能看自己的作業
 
         // 作業繳交狀態
-        $findHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=?');
-        $findHomework->execute(array($_SESSION['user']['id'], $_SESSION['missionID']));
+        // 有主題 id 也有 子任務 id 顯示各子任務的繳交狀況
+        if (isset($_GET['missionID']) && isset($_GET['subMissionID'])) {
+            $findHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=? and subMissionID=?');
+            $findHomework->execute(array($_SESSION['user']['id'], $_SESSION['missionID'], $_SESSION['subMissionID']));
 
-        if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
-            $homeworkStatus = (int)$homework['score'];
+            if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
+                $homeworkStatus = (int)$homework['score'];
 
-            if ($homeworkStatus === 0) {
-                $homeworkStatusText = '<div class="no-score">評分中</div>';
-            } else {
-                $status = '';
-                for ($i = 1; $i < 4; $i++) {
-                    $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                    $status .= $star;
+                if ($homeworkStatus === 0) {
+                    $homeworkStatusText = '<div class="no-score">評分中</div>';
+                } else {
+                    $status = '';
+                    for ($i = 1; $i < 4; $i++) {
+                        $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                        $status .= $star;
+                    }
+                    $homeworkStatusText = $status;
                 }
-                $homeworkStatusText = $status;
+            } else {
+                $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
             }
-        } else {
-            $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
+        } else if (isset($_GET['missionID']) && !isset($_GET['subMissionID'])) {
+            //如果只 GET 到主題 id ，但沒有子任務 id，則列出該主題中子任務的平均分數
+
+            // 先獲取該主題下，所有子任務的總數
+            $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+            $findMissionGoalCount->execute(array($_SESSION['missionID']));
+            $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+
+            // 列出該生所有的作業
+            $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=?');
+            $findHomeworkCount->execute(array($_SESSION['user']['id'], $_SESSION['missionID']));
+            $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+
+            if ($homeworkCount['Count(id)'] == 0) {
+                $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+            } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . '</div>';
+            } else if ($missionGoalDataCount['Count(id)'] == $homeworkCount['Count(id)']) {
+                // 若作業都有繳交則開始計算分數
+                $homeworkStatus = ceil($homeworkCount['AVG(score)']);
+                if ($homeworkStatus === 0) {
+                    $homeworkStatusText = '<div class="no-score">評分中</div>';
+                } else {
+                    $status = '';
+                    for ($i = 1; $i < 4; $i++) {
+                        $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                        $status .= $star;
+                    }
+                    $homeworkStatusText = $status;
+                }
+            }
         }
     } else if ($_SESSION['user']['identity'] === 'teacher') {
         // 登入身份為老師
@@ -57,7 +91,7 @@ if (isset($_GET['missionID'])) {
         $findClassTeacherData = $findClassTeacher->fetch(PDO::FETCH_ASSOC);
 
         $findClass = $dbh->prepare('SELECT classID FROM student WHERE id=?');
-        $findClass->execute(array($_GET['studentID']));
+        $findClass->execute(array($_SESSION['homeworkOwner']));
 
         if ($class = $findClass->fetch(PDO::FETCH_ASSOC)) {
             $classID = $class['classID'];
@@ -73,7 +107,6 @@ if (isset($_GET['missionID'])) {
 
                 if ($findMissionData->rowCount() < 1) {
                     // 沒有這個任務
-
                     die('<meta http-equiv="refresh" content="0; url=../main.php">');
                 }
             } else {
@@ -83,29 +116,59 @@ if (isset($_GET['missionID'])) {
 
         // 拿學生作業
         // 作業繳交狀態
-        $findHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=?');
-        $findHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID']));
+        // 有主題 id 也有 子任務 id
+        if (isset($_GET['missionID']) && isset($_GET['subMissionID'])) {
+            $findHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=? and subMissionID=?');
+            $findHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID'], $_SESSION['subMissionID']));
 
-        if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
-            $homeworkStatus = (int)$homework['score'];
+            if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
+                $homeworkStatus = (int)$homework['score'];
 
-            if ($homeworkStatus === 0) {
-                $status = '';
-                for ($i = 1; $i < 4; $i++) {
-                    $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
-                    $status .= $star;
+                if ($homeworkStatus === 0) {
+                    $status = '';
+                    for ($i = 1; $i < 4; $i++) {
+                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
+                        $status .= $star;
+                    }
+                    $homeworkStatusText = $status;
+                } else {
+                    $status = '';
+                    for ($i = 1; $i < 4; $i++) {
+                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
+                        $status .= $star;
+                    }
+                    $homeworkStatusText = $status;
                 }
-                $homeworkStatusText = $status;
             } else {
+                $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
+            }
+        } else if (isset($_GET['missionID']) && !isset($_GET['subMissionID'])) {
+            //如果只 GET 到主題 id ，但沒有子任務 id，則列出該主題中子任務的平均分數
+
+            // 先獲取該主題下，所有子任務的總數
+            $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+            $findMissionGoalCount->execute(array($_SESSION['missionID']));
+            $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+
+            // 列出該生所有的作業
+            $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+            $findHomeworkCount->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID']));
+            $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+
+            if ($homeworkCount['Count(id)'] == 0) {
+                $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+            } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . '</div>';
+            } else if ($missionGoalDataCount['Count(id)'] == $homeworkCount['Count(id)']) {
+                // 若作業都有繳交則開始計算分數
+                $homeworkStatus = ceil($homeworkCount['AVG(score)']);
                 $status = '';
                 for ($i = 1; $i < 4; $i++) {
-                    $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
+                    $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
                     $status .= $star;
                 }
                 $homeworkStatusText = $status;
             }
-        } else {
-            $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
         }
     }
 
@@ -266,7 +329,29 @@ if (isset($_GET['missionID'])) {
             <div class="tab-content">
                 <div class="tab-content-top">
                     <h1 class="page-title">
-                        <?php echo $missionData['name']; ?>
+
+
+                        <?php
+
+                        if (!isset($_SESSION['subMissionID'])) {
+                            // 如果沒有子任務 ID 就只顯示主題標題
+                            echo $missionData['name'];
+                        } else {
+                            // 如果有子任務 ID 
+                            // 顯示主題連結
+                            echo '<a href="?missionID=' . $_SESSION['missionID'] . '" class="link">' . $missionData['name'] . '</a>';
+                            // 顯示箭頭
+                            echo '<img class="arrow" src="../src/img/icon/right-dark.svg" />';
+
+                            // 顯示子任務標題
+                            $findMissionGoal = $dbh->prepare('SELECT * FROM missionGoal WHERE id=?');
+                            $findMissionGoal->execute(array($_SESSION['subMissionID']));
+
+                            while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
+                                echo $missionGoalData['title'];
+                            }
+                        }
+                        ?>
                     </h1>
                 </div>
                 <div class="mission-session">
@@ -304,6 +389,8 @@ if (isset($_GET['missionID'])) {
                                             <th>#</th>
                                             <th>任務標題</th>
                                             <th>任務說明</th>
+                                            <th>分數</th>
+                                            <th>查看</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -322,6 +409,22 @@ if (isset($_GET['missionID'])) {
                                         $index = 0;
 
                                         while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
+                                            // 列出該生的作業
+                                            $findSubHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=? and subMissionID=?');
+                                            $findSubHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID'],$missionGoalData['id']));
+                                            $subHomeworkData = $findSubHomework->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+
+                                            if ($subHomeworkData['score'] == 0) {
+                                                $subHomeworkStatusText = '未繳交';
+                                            }else{
+                                                // 若作業有繳交則開始計算分數
+                                                $subHomeworkStatus = '';
+                                                for ($i = 1; $i < 4; $i++) {
+                                                    $star = $i <= $subHomeworkData['score'] ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                                    $subHomeworkStatus .= $star;
+                                                }
+                                                $subHomeworkStatusText = $subHomeworkStatus;
+                                            }
                                             $index++;
                                             echo '<tr>
                                             <td>' . $index . '</td>
@@ -330,6 +433,12 @@ if (isset($_GET['missionID'])) {
                                             </td>
                                             <td>
                                             ' . $missionGoalData['content'] . '
+                                            </td>
+                                            <td>
+                                                <div class="score">' . $subHomeworkStatusText . '</div>
+                                            </td>
+                                            <td>
+                                                <a href="?missionID=' . $_SESSION['missionID'] . '&&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
                                             </td>
                                         </tr>';
                                         }
@@ -369,12 +478,17 @@ if (isset($_GET['missionID'])) {
                     <div class="functions">
                         <?php
                         if ($_SESSION['user']['identity'] === 'student') {
-                            if (!isset($homework['id'])) {
-                                echo '<button class="submit-homework-btn button-fill">繳交作業</button>';
-                            } else {
-                                if ($submitStatusClass != 'overtime') {
-                                    echo '<button class="edit-homework-btn button-hollow">編輯作業</button>';
-                                    echo '<button class="delete-homework-btn button-pink">刪除作業</button>';
+                            // 檢查是否在子任務
+                            if (isset($_GET['subMissionID'])) {
+                                // 檢查是否有交作業
+                                if (!isset($homework['id'])) {
+                                    echo '<button class="submit-homework-btn button-fill">繳交作業</button>';
+                                } else {
+                                    // 若未超過截止時間，則開放編輯以及刪除
+                                    if ($submitStatusClass != 'overtime') {
+                                        echo '<button class="edit-homework-btn button-hollow">編輯作業</button>';
+                                        echo '<button class="delete-homework-btn button-pink">刪除作業</button>';
+                                    }
                                 }
                             }
                         }
@@ -384,32 +498,34 @@ if (isset($_GET['missionID'])) {
                     </div>
                     <div class="messege-board">
                         <?php
-                        // 如果登入者是學生
-                        if ($_SESSION['user']['identity'] === 'student') {
-                            $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID = ? and studentID =? ORDER BY time ASC');
-                            $findMessage->execute(array($_SESSION['missionID'], $_SESSION['user']['id']));
-                        } else if ($_SESSION['user']['identity'] === 'teacher' && isset($_SESSION['homeworkOwner'])) {
-                            $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID = ? and studentID =? ORDER BY time ASC');
-                            $findMessage->execute(array($_SESSION['missionID'], $_SESSION['homeworkOwner']));
-                        }
 
-
-                        while ($message = $findMessage->fetch(PDO::FETCH_ASSOC)) {
-                            if ($message['isTeacher'] === '0') {
-                                $findOwner = $dbh->prepare('SELECT id,name, img, img_name FROM student WHERE id = ? ');
-                                $findOwner->execute(array($message['ownerID']));
-                                $owner = $findOwner->fetch(PDO::FETCH_ASSOC);
-                            } else {
-                                $findOwner = $dbh->prepare('SELECT id,name, img, img_name FROM teacher WHERE id = ? ');
-                                $findOwner->execute(array($message['ownerID']));
-                                $owner = $findOwner->fetch(PDO::FETCH_ASSOC);
+                        if (isset($_GET['subMissionID'])) {
+                            // 如果登入者是學生
+                            if ($_SESSION['user']['identity'] === 'student') {
+                                $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID = ? and studentID =? and subMissionID=? ORDER BY time ASC');
+                                $findMessage->execute(array($_SESSION['missionID'], $_SESSION['user']['id'], $_SESSION['subMissionID']));
+                            } else if ($_SESSION['user']['identity'] === 'teacher' && isset($_SESSION['homeworkOwner'])) {
+                                $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID = ? and studentID =? and subMissionID=? ORDER BY time ASC');
+                                $findMessage->execute(array($_SESSION['missionID'], $_SESSION['homeworkOwner'], $_SESSION['subMissionID']));
                             }
 
-                            if ($owner['img'] == 1) {
-                                $owner['img'] = "../src/img/3Dcity.svg";
-                            }
 
-                            echo '<div class="messege">
+                            while ($message = $findMessage->fetch(PDO::FETCH_ASSOC)) {
+                                if ($message['isTeacher'] === '0') {
+                                    $findOwner = $dbh->prepare('SELECT id,name, img, img_name FROM student WHERE id = ? ');
+                                    $findOwner->execute(array($message['ownerID']));
+                                    $owner = $findOwner->fetch(PDO::FETCH_ASSOC);
+                                } else {
+                                    $findOwner = $dbh->prepare('SELECT id,name, img, img_name FROM teacher WHERE id = ? ');
+                                    $findOwner->execute(array($message['ownerID']));
+                                    $owner = $findOwner->fetch(PDO::FETCH_ASSOC);
+                                }
+
+                                if ($owner['img'] == 1) {
+                                    $owner['img'] = "../src/img/3Dcity.svg";
+                                }
+
+                                echo '<div class="messege">
                                 <div class="user">
                                     <img src="' . $owner['img'] . '" alt="' . $owner['name'] . '" />
                                 </div>
@@ -421,25 +537,25 @@ if (isset($_GET['missionID'])) {
                                             <div class="messege-time">' . substr($message['time'], 0, -3) . '</div>
                                         </div>';
 
-                            if ($_SESSION['user']['id'] == $owner['id']) {
-                                // 因為老師跟學生不同表， id 有可能會撞到
-                                if ($_SESSION['user']['identity'] === 'student' && $message['isTeacher'] === '0') {
-                                    echo '<div class="function"><img class="icon editMsg edit-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteMsg delete-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>';
+                                if ($_SESSION['user']['id'] == $owner['id']) {
+                                    // 因為老師跟學生不同表， id 有可能會撞到
+                                    if ($_SESSION['user']['identity'] === 'student' && $message['isTeacher'] === '0') {
+                                        echo '<div class="function"><img class="icon editMsg edit-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteMsg delete-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>';
+                                    }
+                                    if ($_SESSION['user']['identity'] === 'teacher' && $message['isTeacher'] === '1') {
+                                        echo '<div class="function"><img class="icon editMsg edit-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteMsg delete-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>';
+                                    }
                                 }
-                                if ($_SESSION['user']['identity'] === 'teacher' && $message['isTeacher'] === '1') {
-                                    echo '<div class="function"><img class="icon editMsg edit-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteMsg delete-msg-btn" id="' . $message['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>';
-                                }
-                            }
 
-                            echo '</div>
+                                echo '</div>
                                     <div class="bottom">
                                         <div class="messege-img">
                                             ';
-                            if ($message['img'] !== null) {
-                                echo '<img src="' . $message['img'] . '" alt="img" />';
-                            }
+                                if ($message['img'] !== null) {
+                                    echo '<img src="' . $message['img'] . '" alt="img" />';
+                                }
 
-                            echo '
+                                echo '
                                         </div>
                                         <div class="messege-text">
                                         ' . $message['content'] . '
@@ -447,14 +563,17 @@ if (isset($_GET['missionID'])) {
                                     </div>
                                 </div>
                             </div>';
-                        };
+                            };
+
+                            echo '<div class="functions">
+                            <button class="submit-msg-btn button-fill">留言</button>
+                        </div>';
+                        }
 
 
                         ?>
 
-                        <div class="functions">
-                            <button class="submit-msg-btn button-fill">新增作業說明</button>
-                        </div>
+
 
                     </div>
                 </div>
@@ -526,7 +645,7 @@ if (isset($_GET['missionID'])) {
 
                                         echo '<img class="mission_submit" src="' . $homework['img'] . '" alt="mission_submit">';
                                     } else {
-                                        echo '<img class="mission_submit" src="../src/img/3Dcity.svg" alt="mission_submit">';
+                                        echo '<img class="mission_submit" src="../src/img/icon/uploadImg.svg" alt="mission_submit">';
                                     }
                                     ?>
                                 </div>

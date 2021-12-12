@@ -225,7 +225,7 @@ $(document).ready(function () {
         },
         columnDefs: [
             //给第一列指定宽度为表格整个宽度的20%
-            { width: "40%", targets: 1 },
+            { width: "30%", targets: 1 },
             { width: "40%", targets: 2 },
         ],
         paging: false,

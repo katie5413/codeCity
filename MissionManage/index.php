@@ -49,6 +49,18 @@ if (isset($_GET['missionID'])) {
             $awardItem = $findAward->fetch(PDO::FETCH_ASSOC);
             $award = $awardItem['img'] !== NULL ? $awardItem['img'] : $awardItem['img_link'];
         }
+
+        // 處理子任務
+        if (isset($_GET['subMissionID'])) {
+            $findSubMissionData = $dbh->prepare('SELECT * FROM missionGoal WHERE id = ? and missionID=?');
+            $findSubMissionData->execute(array($_GET['subMissionID'], $_SESSION['missionID']));
+            $subMissionData = $findSubMissionData->fetch(PDO::FETCH_ASSOC);
+
+            if ($findSubMissionData->rowCount() < 1) {
+                // 沒有這個子任務
+                die('<meta http-equiv="refresh" content="0; url=../main.php">');
+            }
+        }
     }
 }
 ?>
@@ -179,7 +191,8 @@ if (isset($_GET['missionID'])) {
             <div class="tab-content">
                 <div class="tab-content-top">
                     <h1 class="page-title">
-                        <a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" /><?php echo $missionData['name']; ?>
+                        <?php if (!isset($_GET['subMissionID'])) echo '<a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" />' . $missionData['name'] . '' ?>
+                        <?php if (isset($_GET['subMissionID'])) echo '<a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" /><a href="?missionID=' . $_SESSION['missionID'] . '&&classID=' . $_SESSION['classID'] . '" class="link">' . $missionData['name'] . '</a><img class="arrow" src="../src/img/icon/right-dark.svg" />' . $subMissionData['title'] . '' ?>
                     </h1>
                     <div class="functions">
                         <button class="edit-mission-btn button-fill">編輯</button>
@@ -217,6 +230,7 @@ if (isset($_GET['missionID'])) {
                                             <th>任務標題</th>
                                             <th>任務說明</th>
                                             <th style="text-align:center">編輯/刪除</th>
+                                            <th>查看</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -247,6 +261,9 @@ if (isset($_GET['missionID'])) {
                                             <td>
                                             <div class="function"><img class="icon editSubMission edit-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteSubMission delete-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>
                                             </td>
+                                            <td>
+                                                <a href="?missionID=' . $_SESSION['missionID'] . '&&classID=' . $_SESSION['classID'] . '&&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
+                                            </td>
                                         </tr>';
                                         }
                                         ?>
@@ -258,7 +275,70 @@ if (isset($_GET['missionID'])) {
 
                     </div>
 
-                    <div class="submit-status-board">
+                    <!--處理主題繳交狀況-->
+                    <div class="submit-status-board <?php if (isset($_GET['subMissionID'])) {
+                                                        echo 'hide';
+                                                    } else {
+                                                        echo 'all';
+                                                    }  ?>">
+                        <div class="all">
+                            <div class="list-area">
+                                <?php
+                                // 先獲取該主題下，所有子任務的總數
+                                $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+                                $findMissionGoalCount->execute(array($_SESSION['missionID']));
+                                $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+
+                                $findStudent = $dbh->prepare('SELECT id, img,name FROM student where classID = ?');
+                                $findStudent->execute(array($_GET['classID']));
+                                while ($studentList = $findStudent->fetch(PDO::FETCH_ASSOC)) {
+                                    // 列出該生所有的作業
+                                    $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score),score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                    $findHomeworkCount->execute(array($studentList['id'], $_SESSION['missionID']));
+                                    $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+
+                                    $waitToScore = 0;
+                                    while ($findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                                        if ($homeworkCount['score'] == 0) {
+                                            $waitToScore++;
+                                        }
+                                    }
+
+                                    if ($homeworkCount['Count(id)'] == 0) {
+                                        $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+                                    } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
+                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . ' 待評 ' . $waitToScore . '</div>';
+                                    }
+
+                                    $homeworkStatus = ceil($homeworkCount['AVG(score)']);
+                                    $status = '';
+                                    for ($i = 1; $i < 4; $i++) {
+                                        $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                        $status .= $star;
+                                    }
+                                    $homeworkScore = $status;
+
+                                    if ($studentList['img'] == 1) {
+                                        $studentList['img'] = '../src/img/3Dcity.svg';
+                                    }
+
+                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&&studentID=' . $studentList['id'] . '">
+                                            <div class="user">
+                                                <div class="user_img">
+                                                    <img src="' . $studentList['img'] . '" alt="' . $studentList['name'] . '" />
+                                                </div>
+                                                <div class="name">' . $studentList['name'] . '</div>
+                                            </div>
+                                            <div class="submit-mission-score">' . $homeworkStatusText . '' . $homeworkScore . '</div>
+                                            </a>';
+                                }
+                                ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--處理子任務繳交狀況-->
+                    <div class="submit-status-board <?php if (!isset($_GET['subMissionID'])) echo 'hide' ?>">
                         <div class="left">
                             <div class="status submit">
                                 <div class="status-tag">
@@ -266,8 +346,8 @@ if (isset($_GET['missionID'])) {
                                 </div>
                                 <div class="status-number">
                                     <?php
-                                    $findSubmitStudent = $dbh->prepare('SELECT * FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? ORDER by homework.score');
-                                    $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
+                                    $findSubmitStudent = $dbh->prepare('SELECT * FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ?and subMissionID = ? ORDER by homework.score');
+                                    $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'], $_GET['subMissionID']));
                                     $submitSum = (int)0;
                                     while ($submitStudentList = $findSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                         if ($submitStudentList['score'] !== NULL) {
@@ -280,8 +360,8 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div id="submitList" class="list-area">
                                 <?php
-                                $findSubmitStudent = $dbh->prepare('SELECT student.id, student.img,student.name,homework.score,homework.studentID,homework.missionID FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? ORDER by homework.score');
-                                $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
+                                $findSubmitStudent = $dbh->prepare('SELECT student.id, student.img,student.name,homework.score,homework.studentID,homework.missionID, homework.subMissionID FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? and subMissionID = ? ORDER by homework.score');
+                                $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'], $_GET['subMissionID']));
                                 while ($submitStudentList = $findSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
 
                                     $submitStudentList['score'];
@@ -323,8 +403,8 @@ if (isset($_GET['missionID'])) {
                                 </div>
                                 <div class="status-number">
                                     <?php
-                                    $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name,classID from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                    $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
+                                    $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name,classID from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ? and subMissionID = ?)');
+                                    $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'], $_GET['subMissionID']));
                                     $notSubmitSum = (int)0;
                                     while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                         $notSubmitSum = $notSubmitSum + 1;
@@ -335,8 +415,8 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div id="not-submitList" class="list-area">
                                 <?php
-                                $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ?)');
-                                $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID']));
+                                $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ? and subMissionID = ?)');
+                                $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'],$_GET['subMissionID']));
                                 while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                     if ($notSubmitStudentList['img'] == 1) {
                                         $notSubmitStudentList['img'] = '../src/img/3Dcity.svg';

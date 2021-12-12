@@ -278,6 +278,14 @@ h2.mission_time.not-start {
     margin-top: 20px;
 }
 
+.tab .tab-content .submit-status-board.all{
+    grid-template-columns: 1fr;
+}
+
+.tab .tab-content .submit-status-board.hide {
+    display: none;
+}
+
 .tab .tab-content .submit-status-board .status {
     display: flex;
     align-items: center;
@@ -289,7 +297,7 @@ h2.mission_time.not-start {
     color: var(--function);
 }
 
-.tab .tab-content .submit-status-board .status.not-submit {
+.not-submit {
     color: var(--alert);
 }
 
