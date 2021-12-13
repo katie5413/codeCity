@@ -127,14 +127,14 @@ if (isset($_GET['missionID'])) {
                 if ($homeworkStatus === 0) {
                     $status = '';
                     for ($i = 1; $i < 4; $i++) {
-                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
+                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
                         $status .= $star;
                     }
                     $homeworkStatusText = $status;
                 } else {
                     $status = '';
                     for ($i = 1; $i < 4; $i++) {
-                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&&subMissionID=' . $_SESSION['subMissionID'] . '&&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
+                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
                         $status .= $star;
                     }
                     $homeworkStatusText = $status;
@@ -438,7 +438,7 @@ if (isset($_GET['missionID'])) {
                                                 <div class="score">' . $subHomeworkStatusText . '</div>
                                             </td>
                                             <td>
-                                                <a href="?missionID=' . $_SESSION['missionID'] . '&&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
+                                                <a href="?missionID=' . $_SESSION['missionID'] . 'subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
                                             </td>
                                         </tr>';
                                         }

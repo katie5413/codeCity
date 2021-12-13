@@ -192,7 +192,7 @@ if (isset($_GET['missionID'])) {
                 <div class="tab-content-top">
                     <h1 class="page-title">
                         <?php if (!isset($_GET['subMissionID'])) echo '<a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" />' . $missionData['name'] . '' ?>
-                        <?php if (isset($_GET['subMissionID'])) echo '<a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" /><a href="?missionID=' . $_SESSION['missionID'] . '&&classID=' . $_SESSION['classID'] . '" class="link">' . $missionData['name'] . '</a><img class="arrow" src="../src/img/icon/right-dark.svg" />' . $subMissionData['title'] . '' ?>
+                        <?php if (isset($_GET['subMissionID'])) echo '<a href="javascript:history.back()" class="link">返回</a><img class="arrow" src="../src/img/icon/right-dark.svg" /><a href="?missionID=' . $_SESSION['missionID'] . '&classID=' . $_SESSION['classID'] . '" class="link">' . $missionData['name'] . '</a><img class="arrow" src="../src/img/icon/right-dark.svg" />' . $subMissionData['title'] . '' ?>
                     </h1>
                     <div class="functions">
                         <button class="edit-mission-btn button-fill">編輯</button>
@@ -262,7 +262,7 @@ if (isset($_GET['missionID'])) {
                                             <div class="function"><img class="icon editSubMission edit-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/edit.svg" alt="edit" /><img class="icon deleteSubMission delete-subMission-btn" id="' . $missionGoalData['id'] . '" src="../src/img/icon/trash.svg" alt="delete" /></div>
                                             </td>
                                             <td>
-                                                <a href="?missionID=' . $_SESSION['missionID'] . '&&classID=' . $_SESSION['classID'] . '&&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
+                                                <a href="?missionID=' . $_SESSION['missionID'] . '&classID=' . $_SESSION['classID'] . '&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
                                             </td>
                                         </tr>';
                                         }
@@ -322,7 +322,7 @@ if (isset($_GET['missionID'])) {
                                         $studentList['img'] = '../src/img/3Dcity.svg';
                                     }
 
-                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&&studentID=' . $studentList['id'] . '">
+                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&studentID=' . $studentList['id'] . '">
                                             <div class="user">
                                                 <div class="user_img">
                                                     <img src="' . $studentList['img'] . '" alt="' . $studentList['name'] . '" />
@@ -382,7 +382,7 @@ if (isset($_GET['missionID'])) {
                                         $submitStudentList['img'] = '../src/img/3Dcity.svg';
                                     }
 
-                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $submitStudentList['missionID'] . '&&studentID=' . $submitStudentList['studentID'] . '">
+                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $submitStudentList['missionID'] . '&studentID=' . $submitStudentList['studentID'] . '">
                                             <div class="user">
                                                 <div class="user_img">
                                                     <img src="' . $submitStudentList['img'] . '" alt="' . $submitStudentList['name'] . '" />
@@ -416,7 +416,7 @@ if (isset($_GET['missionID'])) {
                             <div id="not-submitList" class="list-area">
                                 <?php
                                 $findNotSubmitStudent = $dbh->prepare('SELECT id,img,name from student where classID = ? and id NOT IN (SELECT student.id FROM student LEFT JOIN homework on student.id = homework.studentID where missionID = ? and subMissionID = ?)');
-                                $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'],$_GET['subMissionID']));
+                                $findNotSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'], $_GET['subMissionID']));
                                 while ($notSubmitStudentList = $findNotSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
                                     if ($notSubmitStudentList['img'] == 1) {
                                         $notSubmitStudentList['img'] = '../src/img/3Dcity.svg';
