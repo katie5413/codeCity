@@ -49,7 +49,6 @@ if ($findStudentData->rowCount() >= 1) {
     <link rel="stylesheet" type="text/css" href="src/component/pop/index.css">
     <link rel="stylesheet" type="text/css" href="src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="src/component/datePicker/index.css">
-    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="main.css?v=<?php echo time(); ?>">
 
 </head>

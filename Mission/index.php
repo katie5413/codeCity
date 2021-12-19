@@ -50,22 +50,36 @@ if (isset($_GET['missionID'])) {
             //如果只 GET 到主題 id ，但沒有子任務 id，則列出該主題中子任務的平均分數
 
             // 先獲取該主題下，所有子任務的總數
-            $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+            $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
             $findMissionGoalCount->execute(array($_SESSION['missionID']));
-            $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+            // 子任務總數
+            $missionGoalCount = 0;
+            while ($missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC)) {
+                $missionGoalCount++;
+            }
 
             // 列出該生所有的作業
-            $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=?');
+            $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=?');
             $findHomeworkCount->execute(array($_SESSION['user']['id'], $_SESSION['missionID']));
-            $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+            $submitHomeworkCount = 0;
+            $submitHomeworkScoreTotal = 0;
+            while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                $submitHomeworkCount++;
+                $submitHomeworkScoreTotal += $homeworkCount['score'];
+            } // 該學生繳交作業總數與分數平均
 
             if ($homeworkCount['Count(id)'] == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-            } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . '</div>';
-            } else if ($missionGoalDataCount['Count(id)'] == $homeworkCount['Count(id)']) {
+            } else if ($missionGoalCount > $submitHomeworkCount) {
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount - $submitHomeworkCount . '</div>';
+            } else if ($missionGoalCount == $submitHomeworkCount) {
                 // 若作業都有繳交則開始計算分數
-                $homeworkStatus = ceil($homeworkCount['AVG(score)']);
+                if ($homeworkCount != 0) {
+                    $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
+                } else {
+                    $homeworkStatus = 0;
+                }
+
                 if ($homeworkStatus === 0) {
                     $homeworkStatusText = '<div class="no-score">評分中</div>';
                 } else {
@@ -146,22 +160,35 @@ if (isset($_GET['missionID'])) {
             //如果只 GET 到主題 id ，但沒有子任務 id，則列出該主題中子任務的平均分數
 
             // 先獲取該主題下，所有子任務的總數
-            $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+            $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
             $findMissionGoalCount->execute(array($_SESSION['missionID']));
-            $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+            // 子任務總數
+            $missionGoalCount = 0;
+            while ($missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC)) {
+                $missionGoalCount++;
+            }
 
             // 列出該生所有的作業
-            $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+            $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
             $findHomeworkCount->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID']));
-            $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
+            $submitHomeworkCount = 0;
+            $submitHomeworkScoreTotal = 0;
+            while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                $submitHomeworkCount++;
+                $submitHomeworkScoreTotal += $homeworkCount['score'];
+            } // 該學生繳交作業總數與分數平均
 
             if ($homeworkCount['Count(id)'] == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-            } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . '</div>';
-            } else if ($missionGoalDataCount['Count(id)'] == $homeworkCount['Count(id)']) {
+            } else if ($missionGoalCount > $homeworkCount['Count(id)']) {
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount  - $submitHomeworkCount . '</div>';
+            } else if ($missionGoalCount == $submitHomeworkCount) {
                 // 若作業都有繳交則開始計算分數
-                $homeworkStatus = ceil($homeworkCount['AVG(score)']);
+                if ($homeworkCount != 0) {
+                    $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
+                } else {
+                    $homeworkStatus = 0;
+                }
                 $status = '';
                 for ($i = 1; $i < 4; $i++) {
                     $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
@@ -225,7 +252,6 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
-    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="../src/library/datatables/datatables.css">
     <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
@@ -411,12 +437,12 @@ if (isset($_GET['missionID'])) {
                                         while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
                                             // 列出該生的作業
                                             $findSubHomework = $dbh->prepare('SELECT * FROM homework WHERE studentID = ? and missionID=? and subMissionID=?');
-                                            $findSubHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID'],$missionGoalData['id']));
+                                            $findSubHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID'], $missionGoalData['id']));
                                             $subHomeworkData = $findSubHomework->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
 
                                             if ($subHomeworkData['score'] == 0) {
                                                 $subHomeworkStatusText = '未繳交';
-                                            }else{
+                                            } else {
                                                 // 若作業有繳交則開始計算分數
                                                 $subHomeworkStatus = '';
                                                 for ($i = 1; $i < 4; $i++) {
@@ -438,7 +464,7 @@ if (isset($_GET['missionID'])) {
                                                 <div class="score">' . $subHomeworkStatusText . '</div>
                                             </td>
                                             <td>
-                                                <a href="?missionID=' . $_SESSION['missionID'] . 'subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
+                                                <a href="?missionID=' . $_SESSION['missionID'] . '&subMissionID=' . $missionGoalData['id'] . '"><button class="button-fill">查看</button></a>
                                             </td>
                                         </tr>';
                                         }

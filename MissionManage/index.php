@@ -89,7 +89,6 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
-    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務管理</title>
@@ -285,32 +284,48 @@ if (isset($_GET['missionID'])) {
                             <div class="list-area">
                                 <?php
                                 // 先獲取該主題下，所有子任務的總數
-                                $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+                                $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
                                 $findMissionGoalCount->execute(array($_SESSION['missionID']));
-                                $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
+
+                                // 子任務總數
+                                $missionGoalCount = 0;
+                                while ($findMissionGoalCount->fetch(PDO::FETCH_ASSOC)) {
+                                    $missionGoalCount++;
+                                }
 
                                 $findStudent = $dbh->prepare('SELECT id, img,name FROM student where classID = ?');
                                 $findStudent->execute(array($_GET['classID']));
                                 while ($studentList = $findStudent->fetch(PDO::FETCH_ASSOC)) {
                                     // 列出該生所有的作業
-                                    $findHomeworkCount = $dbh->prepare('SELECT Count(id),AVG(score),score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                    $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
                                     $findHomeworkCount->execute(array($studentList['id'], $_SESSION['missionID']));
-                                    $homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
 
                                     $waitToScore = 0;
-                                    while ($findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
-                                        if ($homeworkCount['score'] == 0) {
+                                    $homeworkCount = 0;
+                                    $homeworkScoreTotal = 0;
+                                    while ($homeworkCountData = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                                        $homeworkCount++;
+                                        echo $$homeworkCountData['score'];
+                                        if ($homeworkCountData['score'] == 0) {
                                             $waitToScore++;
+                                        } else {
+                                            $homeworkScoreTotal++;
                                         }
                                     }
 
-                                    if ($homeworkCount['Count(id)'] == 0) {
+                                    if ($homeworkCount == 0) {
                                         $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-                                    } else if ($missionGoalDataCount['Count(id)'] > $homeworkCount['Count(id)']) {
-                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalDataCount['Count(id)'] - $homeworkCount['Count(id)'] . ' 待評 ' . $waitToScore . '</div>';
+                                    } else if ($missionGoalCount > $homeworkCount) {
+                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount - $homeworkCount . ' 待評 ' . $waitToScore . '</div>';
                                     }
 
-                                    $homeworkStatus = ceil($homeworkCount['AVG(score)']);
+
+                                    if ($homeworkCount != 0) {
+                                        $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
+                                    } else {
+                                        $homeworkStatus = 0;
+                                    }
+
                                     $status = '';
                                     for ($i = 1; $i < 4; $i++) {
                                         $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
