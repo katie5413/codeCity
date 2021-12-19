@@ -68,10 +68,12 @@ if (isset($_GET['missionID'])) {
                 $submitHomeworkScoreTotal += $homeworkCount['score'];
             } // 該學生繳交作業總數與分數平均
 
+            $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
+
             if ($homeworkCount['Count(id)'] == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
             } else if ($missionGoalCount > $submitHomeworkCount) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount - $submitHomeworkCount . '</div>';
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
             } else if ($missionGoalCount == $submitHomeworkCount) {
                 // 若作業都有繳交則開始計算分數
                 if ($homeworkCount != 0) {
@@ -178,10 +180,12 @@ if (isset($_GET['missionID'])) {
                 $submitHomeworkScoreTotal += $homeworkCount['score'];
             } // 該學生繳交作業總數與分數平均
 
+            $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
+
             if ($homeworkCount['Count(id)'] == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
             } else if ($missionGoalCount > $homeworkCount['Count(id)']) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount  - $submitHomeworkCount . '</div>';
+                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
             } else if ($missionGoalCount == $submitHomeworkCount) {
                 // 若作業都有繳交則開始計算分數
                 if ($homeworkCount != 0) {

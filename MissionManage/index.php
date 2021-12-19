@@ -313,10 +313,12 @@ if (isset($_GET['missionID'])) {
                                         }
                                     }
 
+                                    $missionNotSubmitCount = $missionGoalCount - $homeworkCount;
+
                                     if ($homeworkCount == 0) {
                                         $homeworkStatusText = '<div class="not-submit">未繳交</div>';
                                     } else if ($missionGoalCount > $homeworkCount) {
-                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionGoalCount - $homeworkCount . ' 待評 ' . $waitToScore . '</div>';
+                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . ' 待評 ' . $waitToScore . '</div>';
                                     }
 
 
