@@ -70,14 +70,14 @@ if (isset($_GET['missionID'])) {
 
             $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
 
-            if ($homeworkCount['Count(id)'] == 0) {
+            if ($submitHomeworkCount == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
             } else if ($missionGoalCount > $submitHomeworkCount) {
                 $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
             } else if ($missionGoalCount == $submitHomeworkCount) {
                 // 若作業都有繳交則開始計算分數
                 if ($homeworkCount != 0) {
-                    $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
+                    $homeworkStatus = ceil($submitHomeworkScoreTotal / $homeworkCount);
                 } else {
                     $homeworkStatus = 0;
                 }
@@ -182,17 +182,12 @@ if (isset($_GET['missionID'])) {
 
             $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
 
-            if ($homeworkCount['Count(id)'] == 0) {
+            if ($submitHomeworkCount == 0) {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-            } else if ($missionGoalCount > $homeworkCount['Count(id)']) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
-            } else if ($missionGoalCount == $submitHomeworkCount) {
+            } else {
                 // 若作業都有繳交則開始計算分數
-                if ($homeworkCount != 0) {
-                    $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
-                } else {
-                    $homeworkStatus = 0;
-                }
+                $homeworkStatus = ceil($submitHomeworkScoreTotal / $submitHomeworkCount);
+
                 $status = '';
                 for ($i = 1; $i < 4; $i++) {
                     $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
