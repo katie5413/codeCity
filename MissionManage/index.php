@@ -309,7 +309,7 @@ if (isset($_GET['missionID'])) {
                                         if ($homeworkCountData['score'] == 0) {
                                             $waitToScore++;
                                         } else {
-                                            $homeworkScoreTotal++;
+                                            $homeworkScoreTotal+=$homeworkCountData['score'];
                                         }
                                     }
 
