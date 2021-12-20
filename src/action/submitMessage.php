@@ -38,8 +38,8 @@ if (isset($_FILES["upload_msg_img"]["name"]) || isset($_POST['msg_text'])) {
     }
 
     if($submitContent != null){
-        $sth = $dbh->prepare('INSERT INTO message (img, imgType, content,ownerID, missionID, studentID, isTeacher) VALUES (?, ?, ?, ?, ?,?,?)');
-        $sth->execute(array($submitImg, $submitImgType, $submitContent, $_SESSION['user']['id'], $_SESSION['missionID'], $_SESSION['homeworkOwner'], $isTeacher));
+        $sth = $dbh->prepare('INSERT INTO message (img, imgType, content,ownerID, missionID, studentID, isTeacher, subMissionID) VALUES (?, ?, ?, ?, ?,?,?,?)');
+        $sth->execute(array($submitImg, $submitImgType, $submitContent, $_SESSION['user']['id'], $_SESSION['missionID'], $_SESSION['homeworkOwner'], $isTeacher, $_SESSION['subMissionID']));
     }
     
     echo '<script>history.go(-1);</script>';
