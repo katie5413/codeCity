@@ -439,8 +439,12 @@ if (isset($_GET['missionID'])) {
                                             $findSubHomework->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID'], $missionGoalData['id']));
                                             $subHomeworkData = $findSubHomework->fetch(PDO::FETCH_ASSOC); // 該學生繳交作業總數與分數平均
 
-                                            if ($subHomeworkData['score'] == 0) {
+                                            if ($subHomeworkData['score'] == Null) {
+                                                // 無值＝未繳交
                                                 $subHomeworkStatusText = '未繳交';
+                                            } else if ($subHomeworkData['score'] == 0) {
+                                                // 有值為 0 ＝ 已交待評分 
+                                                $subHomeworkStatusText = '待評分';
                                             } else {
                                                 // 若作業有繳交則開始計算分數
                                                 $subHomeworkStatus = '';
