@@ -58,39 +58,64 @@ if (isset($_GET['missionID'])) {
                 $missionGoalCount++;
             }
 
-            // 列出該生所有的作業
-            $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=?');
-            $findHomeworkCount->execute(array($_SESSION['user']['id'], $_SESSION['missionID']));
-            $submitHomeworkCount = 0;
-            $submitHomeworkScoreTotal = 0;
-            while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
-                $submitHomeworkCount++;
-                $submitHomeworkScoreTotal += $homeworkCount['score'];
-            } // 該學生繳交作業總數與分數平均
+            // 無任務
+            if ($missionGoalCount == 0) {
+                $homeworkStatusText = '<div class="no-score">尚無任務</div>';
+            } else {
+                //有任務
+                // 列出該生所有的作業
+                $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                $findHomeworkCount->execute(array($_SESSION['user']['id'], $_SESSION['missionID']));
 
-            $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
-
-            if ($submitHomeworkCount == 0) {
-                $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-            } else if ($missionGoalCount > $submitHomeworkCount) {
-                $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
-            } else if ($missionGoalCount == $submitHomeworkCount) {
-                // 若作業都有繳交則開始計算分數
-                if ($homeworkCount != 0) {
-                    $homeworkStatus = ceil($submitHomeworkScoreTotal / $homeworkCount);
-                } else {
-                    $homeworkStatus = 0;
+                $waitToScore = 0;
+                $submitHomeworkCount = 0;
+                $submitHomeworkScoreTotal = 0;
+                while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                    $submitHomeworkCount++;
+                    if ($homeworkCount['score'] == 0) {
+                        $waitToScore++;
+                    } else {
+                        $submitHomeworkScoreTotal += $homeworkCount['score'];
+                    }
                 }
 
-                if ($homeworkStatus === 0) {
-                    $homeworkStatusText = '<div class="no-score">評分中</div>';
-                } else {
-                    $status = '';
-                    for ($i = 1; $i < 4; $i++) {
-                        $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                        $status .= $star;
+                // 該學生繳交作業總數與分數平均
+                $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
+
+                // 未繳交
+                if ($submitHomeworkCount == 0) {
+                    $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+                } else if ($missionGoalCount > $submitHomeworkCount) {
+                    // 有缺
+                    $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
+                } else if ($missionGoalCount == $submitHomeworkCount) {
+                    // 若作業都有繳交則開始計算分數
+                    if ($submitHomeworkCount - $waitToScore == 0) {
+                        $homeworkStatus = 0;
+                    } else {
+                        $homeworkStatus = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
                     }
-                    $homeworkStatusText = $status;
+
+                    if ($waitToScore > 0) {
+                        $homeworkStatusText = '<div class="no-score">評分中</div>';
+                    } else {
+                        // 學生看星星
+                        $switchScore = 0;
+                        if ($homeworkStatus <= 33) {
+                            $switchScore = 1;
+                        } else if ($homeworkStatus <= 66) {
+                            $switchScore = 2;
+                        } else {
+                            $switchScore = 3;
+                        }
+
+                        $status = '';
+                        for ($i = 1; $i < 4; $i++) {
+                            $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                            $status .= $star;
+                        }
+                        $homeworkStatusText = $status;
+                    }
                 }
             }
         }
@@ -141,26 +166,33 @@ if (isset($_GET['missionID'])) {
                 $homeworkStatus = (int)$homework['score'];
 
                 if ($homeworkStatus === 0) {
-                    $status = '';
-                    for ($i = 1; $i < 4; $i++) {
-                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
-                        $status .= $star;
-                    }
-                    $homeworkStatusText = $status;
-                } else {
-                    $status = '';
-                    for ($i = 1; $i < 4; $i++) {
-                        $star = $i <= $homeworkStatus ? '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-active.svg" /></a>' : '<a href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '"><img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" /></a>';
-                        $status .= $star;
-                    }
-                    $homeworkStatusText = $status;
+                    $homeworkStatus = '';
                 }
+
+                $status = '';
+                for ($i = 1; $i <= 100; $i++) {
+                    $star = '<a class="option" style="display:block;" href="../src/action/submitScore.php?studentID=' . $_SESSION['homeworkOwner'] . '&subMissionID=' . $_SESSION['subMissionID'] . '&score=' . $i . '">' . $i . '</a>';
+                    $status .= $star;
+                }
+
+                $template =
+                    '<div class="drop__container">
+                    <input name="imgName" class="select-selected" type="text" placeholder="請選擇分數" autocomplete="off" value="' . $homeworkStatus . '" />
+                    <img src="../src/img/icon/right-dark.svg" alt="icon" class="icon">
+                    <div class="line"></div>
+                    <div class="select-items">
+                        ' . $status . '
+                    </div>
+                </div>';
+
+                $homeworkStatusText = $template;
             } else {
                 $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
             }
         } else if (isset($_GET['missionID']) && !isset($_GET['subMissionID'])) {
             //如果只 GET 到主題 id ，但沒有子任務 id，則列出該主題中子任務的平均分數
 
+            // 顯示作業繳交狀態
             // 先獲取該主題下，所有子任務的總數
             $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
             $findMissionGoalCount->execute(array($_SESSION['missionID']));
@@ -170,30 +202,42 @@ if (isset($_GET['missionID'])) {
                 $missionGoalCount++;
             }
 
-            // 列出該生所有的作業
-            $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
-            $findHomeworkCount->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID']));
-            $submitHomeworkCount = 0;
-            $submitHomeworkScoreTotal = 0;
-            while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
-                $submitHomeworkCount++;
-                $submitHomeworkScoreTotal += $homeworkCount['score'];
-            } // 該學生繳交作業總數與分數平均
-
-            $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
-
-            if ($submitHomeworkCount == 0) {
-                $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+            // 無任務
+            if ($missionGoalCount == 0) {
+                $homeworkStatusText = '<div class="no-score">尚無任務</div>';
             } else {
-                // 若作業都有繳交則開始計算分數
-                $homeworkStatus = ceil($submitHomeworkScoreTotal / $submitHomeworkCount);
+                // 有任務
+                // 列出該生所有的作業
+                $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                $findHomeworkCount->execute(array($_SESSION['homeworkOwner'], $_SESSION['missionID']));
 
-                $status = '';
-                for ($i = 1; $i < 4; $i++) {
-                    $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                    $status .= $star;
+                $waitToScore = 0;
+                $submitHomeworkCount = 0;
+                $submitHomeworkScoreTotal = 0;
+                while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                    $submitHomeworkCount++;
+                    if ($homeworkCount['score'] == 0) {
+                        $waitToScore++;
+                    } else {
+                        $submitHomeworkScoreTotal += $homeworkCount['score'];
+                    }
                 }
-                $homeworkStatusText = $status;
+
+                // 該學生繳交作業總數與分數平均
+                $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
+
+                // 未繳交
+                if ($submitHomeworkCount == 0) {
+                    $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+                } else {
+                    // 有繳交任何一個則開始計算分數
+                    if ($submitHomeworkCount - $waitToScore == 0) {
+                        $homeworkStatus = 0;
+                        $homeworkStatusText = '<div class="no-score">未評分</div>';
+                    } else {
+                        $homeworkStatusText = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
+                    }
+                }
             }
         }
     }
@@ -447,12 +491,28 @@ if (isset($_GET['missionID'])) {
                                                 $subHomeworkStatusText = '待評分';
                                             } else {
                                                 // 若作業有繳交則開始計算分數
-                                                $subHomeworkStatus = '';
-                                                for ($i = 1; $i < 4; $i++) {
-                                                    $star = $i <= $subHomeworkData['score'] ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                                                    $subHomeworkStatus .= $star;
+                                                if ($_SESSION['user']['identity'] === 'student') {
+                                                    //學生看星星
+                                                    $subHomeworkStatus = '';
+                                                    for ($i = 1; $i < 4; $i++) {
+
+                                                        $switchScore = 0;
+                                                        if ($subHomeworkData['score'] <= 33) {
+                                                            $switchScore = 1;
+                                                        } else if ($subHomeworkData['score'] <= 66) {
+                                                            $switchScore = 2;
+                                                        } else {
+                                                            $switchScore = 3;
+                                                        }
+
+                                                        $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                                        $subHomeworkStatus .= $star;
+                                                    }
+                                                    $subHomeworkStatusText = $subHomeworkStatus;
+                                                } else if ($_SESSION['user']['identity'] === 'teacher') {
+                                                    // 老師看分數
+                                                    $subHomeworkStatusText = $subHomeworkData['score'];
                                                 }
-                                                $subHomeworkStatusText = $subHomeworkStatus;
                                             }
                                             $index++;
                                             echo '<tr>

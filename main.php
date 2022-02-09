@@ -10,7 +10,7 @@ if (!isset($_SESSION['user']['email'])) {
 // 如果是老師，找 teacherID
 $findTeacherID = $dbh->prepare('SELECT id, schoolID FROM  teacher WHERE email = ?');
 $findTeacherID->execute(array($_SESSION['user']['email']));
-$teacher= $findTeacherID->fetch(PDO::FETCH_ASSOC);
+$teacher = $findTeacherID->fetch(PDO::FETCH_ASSOC);
 if ($findTeacherID->rowCount() >= 1) {
     $_SESSION['user']['id'] = $teacher['id'];
     $_SESSION['user']['identity'] = 'teacher';
@@ -93,7 +93,7 @@ if ($findStudentData->rowCount() >= 1) {
                         </a>
                     </li>
                     -->
-                    
+
                     <?php
                     if ($_SESSION['user']['identity'] !== 'teacher') {
                         echo '<li>
@@ -182,7 +182,7 @@ if ($findStudentData->rowCount() >= 1) {
                         if ($_SESSION['user']['identity'] === 'teacher') {
                             $sth = $dbh->prepare('SELECT * FROM mission WHERE teacherID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['id']));
-                            $missionIndex=0;
+                            $missionIndex = 0;
 
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                 $missionID = $row['id'];
@@ -214,7 +214,7 @@ if ($findStudentData->rowCount() >= 1) {
                                 <div class="mission-card-content">
                                     <div class="top">
                                         <h2 class="mission-card-title">
-                                        #' . $missionIndex .' '.$missionName . '
+                                        #' . $missionIndex . ' ' . $missionName . '
                                         </h2>
                                     </div>
                                     <div class="mission-card-time">' . $endTime . '</div>
@@ -225,7 +225,7 @@ if ($findStudentData->rowCount() >= 1) {
                         } elseif ($_SESSION['user']['identity'] === 'student') {
                             $sth = $dbh->prepare('SELECT * FROM mission WHERE classID = ? ORDER BY id ASC');
                             $sth->execute(array($_SESSION['user']['classID']));
-                            $missionIndex=0;
+                            $missionIndex = 0;
 
                             while ($row = $sth->fetch(PDO::FETCH_ASSOC)) {
                                 $missionIndex++;
@@ -254,29 +254,76 @@ if ($findStudentData->rowCount() >= 1) {
                                 $url = 'Mission/index.php?missionID=' . $missionID . '';
 
                                 // 顯示作業繳交狀態
-                                if ($missionID && $_SESSION['user']['id']) {
-                                    $findHomework = $dbh->prepare('SELECT score FROM homework WHERE studentID = ? and missionID=?');
-                                    $findHomework->execute(array($_SESSION['user']['id'], $missionID));
+                                // 先獲取該主題下，所有子任務的總數
+                                $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
+                                $findMissionGoalCount->execute(array($missionID));
+                                // 子任務總數
+                                $missionGoalCount = 0;
+                                while ($missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC)) {
+                                    $missionGoalCount++;
+                                }
 
-                                    if ($homeworkItem = $findHomework->fetch(PDO::FETCH_ASSOC)) {
-                                        $homeworkStatus = (int)$homeworkItem['score'];
+                                // 無任務
+                                if ($missionGoalCount == 0) {
+                                    $homeworkStatusText = '<div class="no-score">尚無任務</div>';
+                                } else {
+                                    // 有任務
+                                    // 列出該生所有的作業
+                                    $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                    $findHomeworkCount->execute(array($_SESSION['user']['id'], $missionID));
+                                    
+                                    $waitToScore = 0;
+                                    $submitHomeworkCount = 0;
+                                    $submitHomeworkScoreTotal = 0;
+                                    while ($homeworkCount = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                                        $submitHomeworkCount++;
+                                        if ($homeworkCount['score'] == 0) {
+                                            $waitToScore++;
+                                        } else {
+                                            $submitHomeworkScoreTotal += $homeworkCount['score'];
+                                        }
+                                    }
 
+                                    // 該學生繳交作業總數與分數平均
+                                    $missionNotSubmitCount = $missionGoalCount  - $submitHomeworkCount;
+
+                                    // 未繳交
+                                    if ($submitHomeworkCount == 0) {
+                                        $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+                                    } else if ($missionGoalCount > $submitHomeworkCount) {
+                                        // 有缺
+                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . '</div>';
+                                    } else if ($missionGoalCount == $submitHomeworkCount) {
+                                        // 若作業都有繳交則開始計算分數
+                                        if ($submitHomeworkCount - $waitToScore == 0) {
+                                            $homeworkStatus = 0;
+                                        } else {
+                                            $homeworkStatus = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
+                                        }
+
+                                        // 有交但沒有評分
                                         if ($homeworkStatus === 0) {
                                             $homeworkStatusText = '<div class="no-score">評分中</div>';
                                         } else {
+                                            // 學生看星星
+                                            $switchScore = 0;
+                                            if ($homeworkStatus <= 33) {
+                                                $switchScore = 1;
+                                            } else if ($homeworkStatus <= 66) {
+                                                $switchScore = 2;
+                                            } else {
+                                                $switchScore = 3;
+                                            }
+
                                             $status = '';
-                                            // 最多 3 星
                                             for ($i = 1; $i < 4; $i++) {
-                                                $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="src/img/icon/star-disable.svg" />';
+                                                $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="src/img/icon/star-disable.svg" />';
                                                 $status .= $star;
                                             }
                                             $homeworkStatusText = $status;
                                         }
-                                    } else {
-                                        $homeworkStatusText = '<div class="not-submit">未繳交</div>'; // 未找到，未繳交
                                     }
                                 }
-                                //$homeworkStatusText = checkHomework($homeworkStatus);
 
                                 echo '<a href="' . $url . '"><div class="mission-card ' . $periodClass . '">
                                 <div class="mission-card-img">
@@ -285,7 +332,7 @@ if ($findStudentData->rowCount() >= 1) {
                                 <div class="mission-card-content">
                                     <div class="top">
                                         <h2 class="mission-card-title">
-                                        #' . $missionIndex .' '.$missionName . '
+                                        #' . $missionIndex . ' ' . $missionName . '
                                         </h2>
                                         <div class="mission-card-score">
                                             ' . $homeworkStatusText . '
@@ -304,7 +351,7 @@ if ($findStudentData->rowCount() >= 1) {
                             $now = time();
 
                             $period = '';
-                            if ($now > $end && $end!=null) {
+                            if ($now > $end && $end != null) {
                                 $period = 'end';
                             } else {
                                 $period = 'start';

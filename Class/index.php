@@ -258,8 +258,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     <th>主題名稱</th>
                                     <th>截止時間</th>
                                     <th>作業狀態</th>
-                                    <th>未繳交</th>
-                                    <th>未評分</th>
+                                    <th>作業星等</th>
+                                    <th>作業分數</th>
                                     <th>學生留言數</th>
                                     <th>查看</th>
                                 </tr>
@@ -272,28 +272,60 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                 while ($missionData = $findMission->fetch(PDO::FETCH_ASSOC)) {
                                     $index++;
 
-                                    $findMissionGoalCount = $dbh->prepare('SELECT Count(id) FROM missionGoal WHERE missionID=?');
+                                    // 先獲取該主題下，所有子任務的總數
+                                    $findMissionGoalCount = $dbh->prepare('SELECT id FROM missionGoal WHERE missionID=?');
                                     $findMissionGoalCount->execute(array($missionData['id']));
-                                    $missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC); // 子任務總數
-
-                                    // 該學生繳交作業總數與分數平均
-                                    $findHomeworkCountAVG = $dbh->prepare('SELECT Count(id),AVG(score) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
-                                    $findHomeworkCountAVG->execute(array($_GET['studentID'], $missionData['id']));
-                                    $homeworkCountAVG = $findHomeworkCountAVG->fetch(PDO::FETCH_ASSOC);
-
-                                    // 未繳交
-                                    $notSubmitNum = $missionGoalDataCount['Count(id)'] - $homeworkCountAVG['Count(id)'];
-
-                                    // 該學生繳交作業但未被評分的數量
-                                    $findWaitToScore  = $dbh->prepare('SELECT Count(id) FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL and score=? ');
-                                    $findWaitToScore->execute(array($_GET['studentID'], $missionData['id'], 0));
-                                    $homeworkWaitToScore = $findWaitToScore->fetch(PDO::FETCH_ASSOC);
+                                    // 子任務總數
+                                    $missionGoalCount = 0;
+                                    while ($missionGoalDataCount = $findMissionGoalCount->fetch(PDO::FETCH_ASSOC)) {
+                                        $missionGoalCount++;
+                                    }
 
                                     // 列出該生所有的作業
-                                    $findHomework = $dbh->prepare('SELECT * FROM homework WHERE missionID =? and studentID = ? and subMissionID IS NOT NULL');
-                                    $findHomework->execute(array($missionData['id'], $_GET['studentID']));
+                                    $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                    $findHomeworkCount->execute(array($_GET['studentID'], $missionData['id']));
 
-                                    $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID =? and studentID = ? and ownerID=? and isTeacher=?');
+                                    $waitToScore = 0; // 待評分
+                                    $submitHomeworkCount = 0; // 已繳交
+                                    $submitHomeworkScoreTotal = 0; // 已繳交作業總分
+                                    while ($homeworkCount  = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                                        $submitHomeworkCount++;
+                                        if ($homeworkCount['score'] == 0) {
+                                            $waitToScore++;
+                                        } else {
+                                            $submitHomeworkScoreTotal += $homeworkCount['score'];
+                                        }
+                                    }
+
+                                    // 未繳交數量
+                                    $missionNotSubmitCount = $missionGoalCount - $submitHomeworkCount;
+                                    // 未繳交
+                                    if ($submitHomeworkCount == 0) {
+                                        $homeworkStatusText = '<span class="alert">未繳交</span>';
+                                        $homeworkStatus = 0;
+
+                                        if($missionGoalCount == 0){
+                                            $homeworkStatusText = '<span>無任務</span>';
+                                        }
+                                    }else if ($missionGoalCount > $submitHomeworkCount) {
+                                        // 有缺
+                                        $homeworkStatusText = '<span class="alert">尚缺 ' . $missionNotSubmitCount . ' 待評 ' . $waitToScore . '</span>';
+                                        $homeworkStatus = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
+                                    }
+                                    else if ($missionGoalCount == $submitHomeworkCount) {
+                                        if ($submitHomeworkCount - $waitToScore == 0) {
+                                            $homeworkStatus = 0;
+                                            $homeworkStatusText = '<span class="alert">尚缺 ' . $missionNotSubmitCount . ' 待評 ' . $waitToScore . '</span>';
+
+                                        } else {
+                                            $homeworkStatus = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
+                                            $homeworkStatusText = '<span>已完成</span>';
+                                        }
+                                    } 
+
+
+                                    // 留言數
+                                    $findMessage = $dbh->prepare('SELECT * FROM message WHERE missionID =? and studentID = ? and ownerID=? and isTeacher=? and subMissionID IS NOT NULL');
                                     $findMessage->execute(array($missionData['id'], $_GET['studentID'], $_GET['studentID'], 0));
                                     $messageNum = 0;
 
@@ -301,24 +333,26 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                         $messageNum++;
                                     }
 
-                                    if ($homework = $findHomework->fetch(PDO::FETCH_ASSOC)) {
-                                        $homeworkStatus = ceil($homeworkCountAVG['AVG(score)']);
-
-                                        if ($homeworkStatus === 0) {
-                                            $homeworkStatusText = '<span class="function">待評分</span>';
-                                        } else {
-                                            $status = '';
-                                            for ($i = 1; $i < 4; $i++) {
-                                                $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                                                $status .= $star;
-                                            }
-                                            $homeworkStatusText = $status;
-                                        }
-
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $notSubmitNum . '</td><td>' . $homeworkWaitToScore['Count(id)'] . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                    $switchScore = 0;
+                                    if ($homeworkStatus == 0) {
+                                        $switchScore = 0;
+                                    } else if ($homeworkStatus <= 33) {
+                                        $switchScore = 1;
+                                    } else if ($homeworkStatus <= 66) {
+                                        $switchScore = 2;
                                     } else {
-                                        echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td><span class="alert">未繳交</span></td><td>' . $notSubmitNum . '</td><td>' . $homeworkWaitToScore['Count(id)'] . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
+                                        $switchScore = 3;
                                     }
+
+                                    $status = '';
+                                    for ($i = 1; $i < 4; $i++) {
+                                        $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                        $status .= $star;
+                                    }
+                                    $homeworkScore = $status;
+
+
+                                    echo '<tr><td>' . $index . '</td><td>' . $missionData['name'] . '</td><td>' . $missionData['endTime'] . '</td><td>' . $homeworkStatusText  . '</td><td>' . $homeworkScore . '</td><td>' . $homeworkStatus . '</td><td>' . $messageNum . '</td><td><a href="../Mission/index.php?missionID=' . $missionData['id'] . '&&studentID=' . $_GET['studentID'] . '"><button class="button-fill">查看</button></a></td></tr>';
                                 }
                                 ?>
                             </tbody>

@@ -293,62 +293,80 @@ if (isset($_GET['missionID'])) {
                                     $missionGoalCount++;
                                 }
 
-                                $findStudent = $dbh->prepare('SELECT id, img,name FROM student where classID = ?');
-                                $findStudent->execute(array($_GET['classID']));
-                                while ($studentList = $findStudent->fetch(PDO::FETCH_ASSOC)) {
-                                    // 列出該生所有的作業
-                                    $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
-                                    $findHomeworkCount->execute(array($studentList['id'], $_SESSION['missionID']));
+                                // 有任務
+                                if ($missionGoalCount != 0) {
+                                    // 處理每個學生
+                                    $findStudent = $dbh->prepare('SELECT id, img,name FROM student where classID = ?');
+                                    $findStudent->execute(array($_GET['classID']));
+                                    while ($studentList = $findStudent->fetch(PDO::FETCH_ASSOC)) {
+                                        // 列出該生所有的作業
+                                        $findHomeworkCount = $dbh->prepare('SELECT id,score FROM homework WHERE studentID = ? and missionID=? and subMissionID IS NOT NULL');
+                                        $findHomeworkCount->execute(array($studentList['id'], $_SESSION['missionID']));
 
-                                    $waitToScore = 0;
-                                    $homeworkCount = 0;
-                                    $homeworkScoreTotal = 0;
-                                    while ($homeworkCountData = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
-                                        $homeworkCount++;
-                                        echo $$homeworkCountData['score'];
-                                        if ($homeworkCountData['score'] == 0) {
-                                            $waitToScore++;
-                                        } else {
-                                            $homeworkScoreTotal+=$homeworkCountData['score'];
+                                        $waitToScore = 0;
+                                        $submitHomeworkCount = 0;
+                                        $submitHomeworkScoreTotal = 0;
+                                        while ($homeworkCount  = $findHomeworkCount->fetch(PDO::FETCH_ASSOC)) {
+                                            $submitHomeworkCount++;
+                                            if ($homeworkCount['score'] == 0) {
+                                                $waitToScore++;
+                                            } else {
+                                                $submitHomeworkScoreTotal += $homeworkCount['score'];
+                                            }
                                         }
-                                    }
 
-                                    $missionNotSubmitCount = $missionGoalCount - $homeworkCount;
+                                        $missionNotSubmitCount = $missionGoalCount - $submitHomeworkCount;
 
-                                    if ($homeworkCount == 0) {
-                                        $homeworkStatusText = '<div class="not-submit">未繳交</div>';
-                                    } else if ($missionGoalCount > $homeworkCount) {
-                                        $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . ' 待評 ' . $waitToScore . '</div>';
-                                    }
+                                        // 未繳交
+                                        if ($submitHomeworkCount == 0) {
+                                            $homeworkStatusText = '<div class="not-submit">未繳交</div>';
+                                            $homeworkStatus = 0;
+                                        } else if ($missionGoalCount >= $submitHomeworkCount) {
+                                            // 有缺
+                                            $homeworkStatusText = '<div class="not-submit">尚缺 ' . $missionNotSubmitCount . ' 待評 ' . $waitToScore . '</div>';
+                                        }
 
+                                        if ($submitHomeworkCount - $waitToScore == 0) {
+                                            $homeworkStatus = 0;
+                                        } else {
+                                            $homeworkStatus = ceil($submitHomeworkScoreTotal / ($submitHomeworkCount - $waitToScore));
+                                        }
 
-                                    if ($homeworkCount != 0) {
-                                        $homeworkStatus = ceil($homeworkScoreTotal / $homeworkCount);
-                                    } else {
-                                        $homeworkStatus = 0;
-                                    }
+                                        $switchScore = 0;
+                                        if ($homeworkStatus == 0) {
+                                            $switchScore = 0;
+                                        } else if ($homeworkStatus <= 33) {
+                                            $switchScore = 1;
+                                        } else if ($homeworkStatus <= 66) {
+                                            $switchScore = 2;
+                                        } else {
+                                            $switchScore = 3;
+                                        }
 
-                                    $status = '';
-                                    for ($i = 1; $i < 4; $i++) {
-                                        $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
-                                        $status .= $star;
-                                    }
-                                    $homeworkScore = $status;
+                                        $status = '';
+                                        for ($i = 1; $i < 4; $i++) {
+                                            $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                            $status .= $star;
+                                        }
+                                        $homeworkScore = $status;
 
-                                    if ($studentList['img'] == 1) {
-                                        $studentList['img'] = '../src/img/3Dcity.svg';
-                                    }
+                                        if ($studentList['img'] == 1) {
+                                            $studentList['img'] = '../src/img/3Dcity.svg';
+                                        }
 
-                                    echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&studentID=' . $studentList['id'] . '">
+                                        echo '<a class="submitCard" href="../Mission/index.php?missionID=' . $_SESSION['missionID'] . '&studentID=' . $studentList['id'] . '">
                                             <div class="user">
                                                 <div class="user_img">
                                                     <img src="' . $studentList['img'] . '" alt="' . $studentList['name'] . '" />
                                                 </div>
                                                 <div class="name">' . $studentList['name'] . '</div>
                                             </div>
-                                            <div class="submit-mission-score">' . $homeworkStatusText . '' . $homeworkScore . '</div>
+                                            <div class="submit-mission-score">' . $homeworkStatusText . '' . $homeworkScore . '' . $homeworkStatus . '</div>
                                             </a>';
+                                    }
                                 }
+
+
                                 ?>
                             </div>
                         </div>
