@@ -395,7 +395,7 @@ if (isset($_GET['missionID'])) {
                             </div>
                             <div id="submitList" class="list-area">
                                 <?php
-                                $findSubmitStudent = $dbh->prepare('SELECT student.id, student.img,student.name,homework.score,homework.studentID,homework.missionID, homework.subMissionID FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? and subMissionID = ? ORDER by homework.score');
+                                $findSubmitStudent = $dbh->prepare('SELECT student.id, student.img,student.name,homework.score,homework.studentID,homework.missionID, homework.subMissionID FROM student LEFT JOIN homework on student.id = homework.studentID where student.classID = ? and missionID = ? and subMissionID = ? and subMissionID is not null ORDER by homework.score');
                                 $findSubmitStudent->execute(array($_GET['classID'], $_SESSION['missionID'], $_GET['subMissionID']));
                                 while ($submitStudentList = $findSubmitStudent->fetch(PDO::FETCH_ASSOC)) {
 
@@ -405,11 +405,23 @@ if (isset($_GET['missionID'])) {
                                     if ($homeworkStatus === 0) {
                                         $homeworkStatusText = '<div class="no-score">待評分</div>';
                                     } else {
+                                        $switchScore = 0;
+                                        if ($homeworkStatus == 0) {
+                                            $switchScore = 0;
+                                        } else if ($homeworkStatus <= 33) {
+                                            $switchScore = 1;
+                                        } else if ($homeworkStatus <= 66) {
+                                            $switchScore = 2;
+                                        } else {
+                                            $switchScore = 3;
+                                        }
                                         $status = '';
                                         for ($i = 1; $i < 4; $i++) {
-                                            $star = $i <= $homeworkStatus ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                            $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
                                             $status .= $star;
                                         }
+
+                                        $status .= $homeworkStatus;
                                         $homeworkStatusText = $status;
                                     }
 
