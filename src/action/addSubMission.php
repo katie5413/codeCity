@@ -11,7 +11,7 @@ if ($_SESSION['user']['identity'] === 'teacher' && isset($_POST['missionGoal_tit
         $addSubMission->execute(array($missionName, $missionDetail, $_SESSION['missionID']));
     }
 
-    echo '<script>history.go(-1);</script>';
+    echo '<meta http-equiv="refresh" content="0; url=../../MissionManage/index.php?missionID=' . $_SESSION['missionID'] . '&classID=' . $_SESSION['classID'] . '">';
 } else {
-    echo '<script>history.go(-1);</script>';
+    die('<meta http-equiv="refresh" content="0; url=../../MissionManage/index.php?missionID=' . $_SESSION['missionID'] . '&classID=' . $_SESSION['classID'] . '">');
 }

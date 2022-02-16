@@ -76,7 +76,6 @@ if (isset($_GET['missionID'])) {
     <script src="../src/library/daterangepicker/daterangepicker.min.js"></script>
     <script src="../src/common/common.js"></script>
     <script src="../src/component/dropBox/index.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" type="text/css" href="../src/common/common.css">
     <script src="../src/library/datatables/datatables.min.js"></script>
     <script src="../src/library/datatables/dataTables.scrollResize.min.js"></script>
@@ -89,6 +88,7 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
     <title>任務管理</title>
@@ -249,13 +249,13 @@ if (isset($_GET['missionID'])) {
 
                                         while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
                                             $index++;
-                                            $active = $missionGoalData['id'] ==$_GET['subMissionID']?'active':'';
-                                            echo '<tr class="'.$active.'">
+                                            $active = $missionGoalData['id'] == $_GET['subMissionID'] ? 'active' : '';
+                                            echo '<tr class="' . $active . '">
                                             <td>' . $index . '</td>
                                             <td>
                                             ' . $missionGoalData['title'] . '
                                             </td>
-                                            <td>
+                                            <td class="codeCity-markdown">
                                             ' . $missionGoalData['content'] . '
                                             </td>
                                             <td>
@@ -362,7 +362,7 @@ if (isset($_GET['missionID'])) {
                                                 </div>
                                                 <div class="name">' . $studentList['name'] . '</div>
                                             </div>
-                                            <div class="submit-mission-score">' . $homeworkStatusText . '' . $homeworkScore . '' . $homeworkStatus . '</div>
+                                            <div class="submit-mission-score">' . $homeworkStatusText . '｜' . $homeworkScore . '｜平均分數：' . $homeworkStatus . '</div>
                                             </a>';
                                     }
                                 }
@@ -574,7 +574,7 @@ if (isset($_GET['missionID'])) {
                         </div>
                         <div class="form__input missionGoal_content">
                             <div class="title">任務說明<span class="must__fill-label">必填</span></div>
-                            <input class="input input__must_fill" type="text" name="missionGoal_content_update" id="missionGoal_content_update" placeholder="請輸入任務說明" value="<?php echo $missionGoalData['content']; ?>" />
+                            <textarea class="input input__must_fill" type="text" name="missionGoal_content_update" id="missionGoal_content_update" placeholder="請輸入任務說明" value="<?php echo $missionGoalData['content']; ?>" /></textarea>
                         </div>
                     </div>
                 </div>
@@ -603,7 +603,7 @@ if (isset($_GET['missionID'])) {
                         </div>
                         <div class="form__input missionGoal_content">
                             <div class="title">子任務說明<span class="must__fill-label">必填</span></div>
-                            <input class="input input__must_fill" type="text" name="missionGoal_content" id="missionGoal_content" placeholder="請輸入子任務說明" value="" />
+                            <textarea class="input input__must_fill" type="text" name="missionGoal_content" id="missionGoal_content" placeholder="請輸入子任務說明" value="" /></textarea>
                         </div>
                     </div>
                 </div>
@@ -635,8 +635,26 @@ if (isset($_GET['missionID'])) {
         </form>
     </div>
     <!-- content end-->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
 </body>
+
 <script>
+    for (var i = 0; i < $('#subMissionTable tr td').length; i++) {
+
+        if (i % 5 == 2) {
+            var elm = $('#subMissionTable tr td').eq(i);
+
+            // 清除前後空格，不然會跑版
+            var str = elm.html().replace(/(^\s*)|(\s*$)/g, ""); 
+
+            elm.html(`${marked.parse(str)}`);
+        }
+    }
+
+    const markResult = marked.parse($('.mission-submit-area .mission-card-detail').html());
+    $('.mission-submit-area .mission-card-detail').html(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
+
     // date picker
     moment.locale('zh-TW');
     $('.calendar').daterangepicker({

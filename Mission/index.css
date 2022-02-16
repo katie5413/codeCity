@@ -321,6 +321,23 @@ th {
     border: 1px solid var(--alert);
 }
 
-table.dataTable tbody tr.active {
+table.dataTable tbody tr.active,
+table.dataTable tbody tr:hover {
     background-color: #e8f9ff;
+}
+
+.mark {
+    display: grid;
+    grid-template-columns: 50% 50%;
+    gap: 8px;
+}
+
+.markdownResult {
+    white-space: pre-line;
+    max-height: 150px;
+    overflow: scroll;
+}
+
+.submit-mission-score {
+    color: #333;
 }

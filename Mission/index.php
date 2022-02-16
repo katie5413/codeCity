@@ -295,6 +295,7 @@ if (isset($_GET['missionID'])) {
     <link rel="stylesheet" type="text/css" href="../src/component/messege/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/dropBox/index.css">
     <link rel="stylesheet" type="text/css" href="../src/component/datePicker/index.css">
+    <link rel="stylesheet" type="text/css" href="../src/component/markdown/index.css">
     <link rel="stylesheet" type="text/css" href="../src/library/datatables/datatables.css">
     <link rel="stylesheet" type="text/css" href="../src/component/table/index.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
@@ -410,7 +411,7 @@ if (isset($_GET['missionID'])) {
                                 $findStudent->execute(array($_SESSION['homeworkOwner']));
 
                                 while ($studentName = $findStudent->fetch(PDO::FETCH_ASSOC)) {
-                                    echo '<a href="../Class/index.php?studentID=' . $_SESSION['homeworkOwner']. '" class="link">' . $studentName['name'] . '</a>';
+                                    echo '<a href="../Class/index.php?studentID=' . $_SESSION['homeworkOwner'] . '" class="link">' . $studentName['name'] . '</a>';
                                     echo '<img class="arrow" src="../src/img/icon/right-dark.svg" />';
                                 }
                             }
@@ -451,10 +452,10 @@ if (isset($_GET['missionID'])) {
                     <h2 class="mission_time <?php echo $period; ?>"><?php echo $endTime; ?></h2>
                     <!-- star no-score not-submit -->
                     <div class="mission-card-score">
-                        <?php 
+                        <?php
                         if (!isset($_GET['subMissionID'])) {
                             echo '平均分數：';
-                        }else{
+                        } else {
                             echo '子任務分數：';
                         }
                         echo $homeworkStatusText; ?>
@@ -555,7 +556,7 @@ if (isset($_GET['missionID'])) {
                                                         $subHomeworkStatus .= $star;
                                                     }
                                                     // 老師看分數
-                                                    $subHomeworkStatusText = $subHomeworkData['score'] . $subHomeworkStatus;
+                                                    $subHomeworkStatusText = $subHomeworkData['score'] .'｜'. $subHomeworkStatus;
                                                 }
                                             }
                                             $index++;
@@ -703,12 +704,7 @@ if (isset($_GET['missionID'])) {
                             <button class="submit-msg-btn button-fill">留言</button>
                         </div>';
                         }
-
-
                         ?>
-
-
-
                     </div>
                 </div>
 
@@ -920,7 +916,20 @@ if (isset($_GET['missionID'])) {
     <!-- content end-->
 </body>
 <script>
+    for (var i = 0; i < $('#subMissionTable2 tr td').length; i++) {
 
+        if (i % 5 == 2) {
+            var elm = $('#subMissionTable2 tr td').eq(i);
+
+            // 清除前後空格，不然會跑版
+            var str = elm.html().replace(/(^\s*)|(\s*$)/g, "");
+
+            elm.html(`${marked.parse(str)}`);
+        }
+    }
+
+    const markResult = marked.parse($('.mission-submit-area .mission-card-detail').html());
+    $('.mission-submit-area .mission-card-detail').html(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
 </script>
 <script src="../src/library/jquery.min.js"></script>
 <script src="../src/library/datatables/datatables.min.js"></script>
