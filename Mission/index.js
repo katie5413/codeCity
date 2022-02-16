@@ -223,11 +223,6 @@ $(document).ready(function () {
             search: '<img src="../src/img/icon/search.svg">',
             searchPlaceholder: "篩選",
         },
-        columnDefs: [
-            //给第一列指定宽度为表格整个宽度的20%
-            { width: "30%", targets: 1 },
-            { width: "40%", targets: 2 },
-        ],
         paging: false,
     });
 

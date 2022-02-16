@@ -222,7 +222,7 @@ if (isset($_GET['missionID'])) {
                                 </h2>
                             </div>
                             <div class="table__container">
-                                <table id="subMissionTable" class="stripe" style="width:100%">
+                                <table id="subMissionTable" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>#</th>
@@ -249,7 +249,8 @@ if (isset($_GET['missionID'])) {
 
                                         while ($missionGoalData = $findMissionGoal->fetch(PDO::FETCH_ASSOC)) {
                                             $index++;
-                                            echo '<tr>
+                                            $active = $missionGoalData['id'] ==$_GET['subMissionID']?'active':'';
+                                            echo '<tr class="'.$active.'">
                                             <td>' . $index . '</td>
                                             <td>
                                             ' . $missionGoalData['title'] . '

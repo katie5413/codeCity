@@ -278,7 +278,7 @@ h2.mission_time.not-start {
     margin-top: 20px;
 }
 
-.tab .tab-content .submit-status-board.all{
+.tab .tab-content .submit-status-board.all {
     grid-template-columns: 1fr;
 }
 
@@ -377,4 +377,8 @@ th {
 
 .table__container .function .icon.deleteSubMission {
     border: 1px solid var(--alert);
+}
+
+table.dataTable tbody tr.active {
+    background-color: #e8f9ff;
 }

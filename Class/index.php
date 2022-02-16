@@ -258,8 +258,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                     <th>主題名稱</th>
                                     <th>截止時間</th>
                                     <th>作業狀態</th>
-                                    <th>作業星等</th>
-                                    <th>作業分數</th>
+                                    <th>作業平均星等</th>
+                                    <th>作業平均分數</th>
                                     <th>學生留言數</th>
                                     <th>查看</th>
                                 </tr>

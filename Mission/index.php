@@ -403,9 +403,32 @@ if (isset($_GET['missionID'])) {
                         <?php
 
                         if (!isset($_SESSION['subMissionID'])) {
+                            // 如果有學生 ID
+                            if (isset($_SESSION['homeworkOwner'])) {
+                                // 顯示子任務標題
+                                $findStudent = $dbh->prepare('SELECT name FROM student WHERE id=?');
+                                $findStudent->execute(array($_SESSION['homeworkOwner']));
+
+                                while ($studentName = $findStudent->fetch(PDO::FETCH_ASSOC)) {
+                                    echo '<a href="../Class/index.php?studentID=' . $_SESSION['homeworkOwner']. '" class="link">' . $studentName['name'] . '</a>';
+                                    echo '<img class="arrow" src="../src/img/icon/right-dark.svg" />';
+                                }
+                            }
                             // 如果沒有子任務 ID 就只顯示主題標題
                             echo $missionData['name'];
                         } else {
+                            // 如果有學生 ID
+                            if (isset($_SESSION['homeworkOwner'])) {
+                                // 顯示子任務標題
+                                $findStudent = $dbh->prepare('SELECT name FROM student WHERE id=?');
+                                $findStudent->execute(array($_SESSION['homeworkOwner']));
+
+                                while ($studentName = $findStudent->fetch(PDO::FETCH_ASSOC)) {
+                                    echo '<a href="../Class/index.php?studentID=' . $_SESSION['homeworkOwner'] . '" class="link">' . $studentName['name'] . '</a>';
+                                    echo '<img class="arrow" src="../src/img/icon/right-dark.svg" />';
+                                }
+                            }
+
                             // 如果有子任務 ID 
                             // 顯示主題連結
                             echo '<a href="?missionID=' . $_SESSION['missionID'] . '" class="link">' . $missionData['name'] . '</a>';
@@ -428,7 +451,13 @@ if (isset($_GET['missionID'])) {
                     <h2 class="mission_time <?php echo $period; ?>"><?php echo $endTime; ?></h2>
                     <!-- star no-score not-submit -->
                     <div class="mission-card-score">
-                        <?php echo $homeworkStatusText; ?>
+                        <?php 
+                        if (!isset($_GET['subMissionID'])) {
+                            echo '平均分數：';
+                        }else{
+                            echo '子任務分數：';
+                        }
+                        echo $homeworkStatusText; ?>
                     </div>
                 </div>
                 <div class="mission-submit-area">
@@ -452,13 +481,13 @@ if (isset($_GET['missionID'])) {
                             </div>
 
                             <div class="table__container">
-                                <table id="subMissionTable2" class="stripe" style="width:100%">
+                                <table id="subMissionTable2" style="width:100%">
                                     <thead>
                                         <tr>
                                             <th>#</th>
                                             <th>任務標題</th>
                                             <th>任務說明</th>
-                                            <th>分數</th>
+                                            <th>分數/等地</th>
                                             <th>查看</th>
                                         </tr>
                                     </thead>
@@ -510,12 +539,28 @@ if (isset($_GET['missionID'])) {
                                                     }
                                                     $subHomeworkStatusText = $subHomeworkStatus;
                                                 } else if ($_SESSION['user']['identity'] === 'teacher') {
+                                                    $subHomeworkStatus = '';
+                                                    for ($i = 1; $i < 4; $i++) {
+
+                                                        $switchScore = 0;
+                                                        if ($subHomeworkData['score'] <= 33) {
+                                                            $switchScore = 1;
+                                                        } else if ($subHomeworkData['score'] <= 66) {
+                                                            $switchScore = 2;
+                                                        } else {
+                                                            $switchScore = 3;
+                                                        }
+
+                                                        $star = $i <= $switchScore ? '<img class="star ' . $i . '" src="../src/img/icon/star-active.svg" />' : '<img class="star ' . $i . '" src="../src/img/icon/star-disable.svg" />';
+                                                        $subHomeworkStatus .= $star;
+                                                    }
                                                     // 老師看分數
-                                                    $subHomeworkStatusText = $subHomeworkData['score'];
+                                                    $subHomeworkStatusText = $subHomeworkData['score'] . $subHomeworkStatus;
                                                 }
                                             }
                                             $index++;
-                                            echo '<tr>
+                                            $active = $missionGoalData['id'] == $_GET['subMissionID'] ? 'active' : '';
+                                            echo '<tr class="' . $active . '">
                                             <td>' . $index . '</td>
                                             <td>
                                             ' . $missionGoalData['title'] . '
