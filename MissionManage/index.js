@@ -142,10 +142,9 @@ $(document).ready(function () {
         },
         columnDefs: [
             //给第一列指定宽度为表格整个宽度的20%
-            { width: "20%", targets: 1 },
+            { width: "30%", targets: 1 },
             { width: "40%", targets: 2 },
-            { width: "150px", targets: 3 },
-            { width: "50px", targets: 4 },
+            { width: "5%", targets: 3 },
         ],
         paging: false,
     });
