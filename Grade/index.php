@@ -66,11 +66,6 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         }
                     }
 
-                    // 單個任務的某學生表現
-                    //$scoreItem = array($missionData['id'] => $homeworkStatus);
-                    //$studentItem = array($studentData['id'] => $homeworkStatus);
-
-                    //echo print_r($studentItem).'<br>';
                     array_push($scoreList, $homeworkStatus);
                 }
             }
@@ -112,8 +107,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         <th>學生名稱</th>
                         <th>學生信箱</th>
                         <?php
-                        for ($i = 0; $i < $missionCount; $i++) {
-                            echo '<th>主題' . $i+1 . '</th>';
+                        for ($i = 1; $i < $missionCount+1; $i++) {
+                            echo '<th>主題' . $i . '</th>';
                         }
                         ?>
                         <th>學生金幣數</th>
@@ -131,8 +126,6 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         for ($k = 0; $k < $missionCount; $k++) {
                             $scoreTextForTable .= '<td>' . $scoreList[$k + ($missionCount * ($index - 1))] . '</td>';
                         }
-
-
 
                         echo '<tr><td>' . $index . '</td><td>' . $studentData['name'] . '</td><td>' . $studentData['email'] . '</td>' . $scoreTextForTable . '<td>' . $studentData['coins'] . '</td></tr>';
                     }

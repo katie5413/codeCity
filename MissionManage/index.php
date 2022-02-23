@@ -654,6 +654,7 @@ if (isset($_GET['missionID'])) {
 
     const markResult = marked.parse($('.mission-submit-area .mission-card-detail').html());
     $('.mission-submit-area .mission-card-detail').html(`<div class="mission-card-detail codeCity-markdown">${markResult}</div>`);
+    $('.codeCity-markdown a').attr('target', '_blank');
 
     // date picker
     moment.locale('zh-TW');
