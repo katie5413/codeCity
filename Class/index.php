@@ -155,7 +155,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                                 <input id="changeClassName" classID="' . $_GET['classID'] . '" name="className" value="' . $className['name'] . '" disabled/>
                             </div>';
 
-                            echo '<div class="addStudent-btn"><button class="button-hollow">新增學生</button></div>';
+                            //echo '<div class="viewGrade-btn"></div>';
+                            echo '<div class="addStudent-btn"><a class="viewGrade" target="_blank" href="../Grade/index.php?classID=' . $_GET['classID'] . '">成績綜覽</a><button class="button-hollow">新增學生</button></div>';
                         }
                     } ?>
                     <?php if (isset($_GET['studentID'])) {

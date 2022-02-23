@@ -123,7 +123,7 @@ $("#changeClassName").blur(function () {
 const initClassName = $("#changeClassName").val();
 
 // 學生名單
-$(".addStudent-btn").click(function () {
+$(".addStudent-btn .button-hollow").click(function () {
     $("#addStudent").removeClass("close").addClass("open");
 });
 
