@@ -94,18 +94,14 @@ if ($findStudentData->rowCount() >= 1) {
                     </li>
                     -->
 
-                    <?php
-                    if ($_SESSION['user']['identity'] !== 'teacher') {
-                        echo '<li>
+                    <li>
                         <a href="Game/" target="_blank">
                             <div class="item" aria-hidden="true">
                                 <img class="icon" src="src/img/icon/game.svg" alt="icon">
                                 <span class="text">遊戲</span>
                             </div>
                         </a>
-                    </li>';
-                    }
-                    ?>
+                    </li>
                     <li class="active">
                         <a href="main.php">
                             <div class="item" aria-hidden="true">
