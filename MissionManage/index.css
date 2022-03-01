@@ -140,6 +140,8 @@ h2.mission_time.not-start {
     align-items: center;
     justify-content: space-between;
     gap: 8px;
+    position: absolute;
+    right: 20px;
 }
 
 .tab .tab-content .tab-content-top .page-title {
