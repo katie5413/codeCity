@@ -276,6 +276,18 @@ h2.mission_time.not-start {
     gap: 20px;
 }
 
+.tab .tab-content .messege-board .functions {
+    display: flex;
+    align-items: center;
+}
+
+.tab .tab-content .messege-board .functions .link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--function-dark);
+}
+
 .table__container .score {
     width: fit-content;
     display: flex;

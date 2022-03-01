@@ -556,7 +556,7 @@ if (isset($_GET['missionID'])) {
                                                         $subHomeworkStatus .= $star;
                                                     }
                                                     // 老師看分數
-                                                    $subHomeworkStatusText = $subHomeworkData['score'] .'｜'. $subHomeworkStatus;
+                                                    $subHomeworkStatusText = $subHomeworkData['score'] . '｜' . $subHomeworkStatus;
                                                 }
                                             }
                                             $index++;
@@ -700,8 +700,39 @@ if (isset($_GET['missionID'])) {
                             </div>';
                             };
 
+                            $findStudentList = $dbh->prepare('SELECT id,name FROM student WHERE classID =?');
+                            $findStudentList->execute(array($classID));
+
+
+                            $studentIDList = [];
+                            $studentNameList = [];
+                            $studentListIndex = 0;
+                            $currentStudentIndex = 0;
+                            while ($studentList = $findStudentList->fetch(PDO::FETCH_ASSOC)) {
+                                // 每次都會把目前的放到 tmp, 如果 tmp 不是作業擁有者的 id 則繼續
+                                array_push($studentIDList, $studentList['id']);
+                                array_push($studentNameList, $studentList['name']);
+                                if ($studentList['id'] == $_SESSION['homeworkOwner']) {
+
+                                    $currentStudentIndex = $studentListIndex;
+                                }
+
+                                $studentListIndex++;
+                            }
+
+                            $lastStudentIndex = $currentStudentIndex - 1;
+                            $nextStudentIndex = $currentStudentIndex + 1;
+                            if ($currentStudentIndex == 0) {
+                                $lastStudentIndex = $studentListIndex - 1;
+                            } elseif ($currentStudentIndex == $studentListIndex - 1) {
+                                $nextStudentIndex = 0;
+                            }
+
+
                             echo '<div class="functions">
+                            <a href="../Mission/index.php?studentID=' . $studentIDList[$lastStudentIndex] . '&&missionID=' . $_GET['missionID'] . '&&subMissionID=' . $_GET['subMissionID'] . '" class="link"><img class="arrow" src="../src/img/icon/right-dark.svg" style="transform: rotate(180deg);"/>' .  $studentNameList[$lastStudentIndex] . '</a>
                             <button class="submit-msg-btn button-fill">留言</button>
+                            <a href="../Mission/index.php?studentID=' . $studentIDList[$nextStudentIndex] . '&&missionID=' . $_GET['missionID'] . '&&subMissionID=' . $_GET['subMissionID'] . '" class="link">' .  $studentNameList[$nextStudentIndex] . '<img class="arrow" src="../src/img/icon/right-dark.svg"/></a>
                         </div>';
                         }
                         ?>

@@ -197,6 +197,17 @@ if (isset($_GET['missionID'])) {
                         <button class="edit-mission-btn button-fill">編輯</button>
                         <button class="add-subMission-btn button-fill">新增子任務</button>
                     </div>
+                    <div class="studentlist">
+                        <?php
+                        // if (isset($_GET['studentID'])) {
+                        //     $findClassmate = $dbh->prepare('SELECT student.id from student WHERE classID=?');
+                        //     $findClassmate-> execute(array($_SESSION['classID'])) ;
+                        //     while ($classmate = $findClassmate->fetch(PDO::FETCH_ASSOC)){
+
+                        //     }
+                        // }
+                        ?>
+                    </div>
                 </div>
                 <div class="mission-session">
                     <!-- start end not-start -->
@@ -234,13 +245,6 @@ if (isset($_GET['missionID'])) {
                                     </thead>
                                     <tbody>
                                         <?php
-
-                                        // 所有子任務分數佔比總和
-                                        /*
-                                        $findMissionGoalPercentSum = $dbh->prepare('SELECT SUM(percent) FROM missionGoal WHERE missionID=?');
-                                        $findMissionGoalPercentSum->execute(array($_SESSION['missionID']));
-                                        $missionGoalDataPercentSum = $findMissionGoalPercentSum->fetch(PDO::FETCH_ASSOC);
-                                        */
 
                                         // 單個任務
                                         $findMissionGoal = $dbh->prepare('SELECT * FROM missionGoal WHERE missionID=?');
@@ -646,7 +650,7 @@ if (isset($_GET['missionID'])) {
             var elm = $('#subMissionTable tr td').eq(i);
 
             // 清除前後空格，不然會跑版
-            var str = elm.html().replace(/(^\s*)|(\s*$)/g, ""); 
+            var str = elm.html().replace(/(^\s*)|(\s*$)/g, "");
 
             elm.html(`${marked.parse(str)}`);
         }
