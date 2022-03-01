@@ -99,6 +99,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
 
 <body>
     <div id="content">
+        <button id="downloadGrade" class="button-fill">下載成績單</button>
         <div class="table__container">
             <table id="studentTable" class="stripe" style="width:100%">
                 <thead>
@@ -107,7 +108,7 @@ if ($_SESSION['user']['identity'] === 'teacher') {
                         <th>學生名稱</th>
                         <th>學生信箱</th>
                         <?php
-                        for ($i = 1; $i < $missionCount+1; $i++) {
+                        for ($i = 1; $i < $missionCount + 1; $i++) {
                             echo '<th>主題' . $i . '</th>';
                         }
                         ?>
@@ -139,6 +140,8 @@ if ($_SESSION['user']['identity'] === 'teacher') {
 
     <script src="../src/library/jquery.min.js"></script>
     <script src="../src/library/datatables/datatables.min.js"></script>
+    <script src="../src/library/table2excel.js"></script>
+
     <script src="../src/common/common.js"></script>
     <script src="index.js?v=<?php echo time(); ?>"></script>
 

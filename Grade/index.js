@@ -60,4 +60,14 @@ $(document).ready(function () {
     $(".dataTables_filter input").focusout(function () {
         $(this).parent().parent().css("border-color", "#f2f2f2");
     });
+
+    $("#downloadGrade").click(function () {
+        $("#studentTable").table2excel({
+            exclude: ".noExl",
+            name: "成績表",
+            filename: "成績表",
+            fileext: ".xls",
+            preserveColors: true,
+        });
+    });
 });

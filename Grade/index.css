@@ -103,6 +103,13 @@ h2 {
     height: -webkit-fill-available;
 }
 
+.button-fill {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: fit-content;
+}
+
 .table__container {
     margin: 0 auto;
     box-sizing: border-box;
