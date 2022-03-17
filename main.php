@@ -434,9 +434,6 @@ if ($findStudentData->rowCount() >= 1) {
                 <div class="content">
                     商城促銷中，快到你的城市看看吧！
                 </div>
-                <div class="buttons">
-                    <button class="cancel button button-pink">取消</button>
-                </div>
             </form>
         </div>
     </div>
