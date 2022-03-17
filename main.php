@@ -421,6 +421,24 @@ if ($findStudentData->rowCount() >= 1) {
                 </div>
             </form>
         </div>
+
+        <div id="notification" class="pop">
+            <form class="inner" action="src/action/addMission.php" method="post">
+                <div class="top">
+                    <div class="title">
+                        <img class="header__icon" src="src/img/icon/mission-dark.svg" alt="icon">
+                        <span>市長公告</span>
+                    </div>
+                    <div class="close">x</div>
+                </div>
+                <div class="content">
+                    商城促銷中，快到你的城市看看吧！
+                </div>
+                <div class="buttons">
+                    <button class="cancel button button-pink">取消</button>
+                </div>
+            </form>
+        </div>
     </div>
     <!-- content end-->
 </body>
