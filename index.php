@@ -15,6 +15,36 @@ include "pdoInc.php";
     <link rel="stylesheet" type="text/css" href="src/common/common.css">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="index.css?v=<?php echo time(); ?>">
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-TWGQMN8');
+    </script>
+    <!-- End Google Tag Manager -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMZ45H5BZ4"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+
+        gtag('config', 'G-CMZ45H5BZ4');
+    </script>
 </head>
 
 <body>
@@ -34,7 +64,7 @@ include "pdoInc.php";
                     </div>
                     <div class="form__input password">
                         <img src="src/img/icon/lock.svg" />
-                        <input class="input" type="password" name="password" placeholder="密碼" onkeyup="value=value.replace(/[^\w_.]/g,'')"/>
+                        <input class="input" type="password" name="password" placeholder="密碼" onkeyup="value=value.replace(/[^\w_.]/g,'')" />
                     </div>
                     <div class="buttons">
                         <a href="signup.php"><button class="signup-btn button-hollow">註冊</button></a>
@@ -50,6 +80,9 @@ include "pdoInc.php";
 
     </div>
 </body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TWGQMN8" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
 <script src="src/library/datatables/datatables.min.js"></script>
 <script src="src/library/moment-with-locales.min.js"></script>
